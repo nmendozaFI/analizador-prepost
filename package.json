@@ -1,0 +1,10 @@
+{
+  "name": "analizador-prepost",
+  "version": "1.0.0",
+  "description": "Analizador PRE-POST · Escuela de Fortalecimiento",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve public -l 3000",
+    "build": "echo 'Static site — no build needed'"
+  }
+}
