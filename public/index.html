@@ -566,7 +566,7 @@ function processData(rawPre,rawPost,tipo){
   const individ=preAvgs.map((pr,i)=>{
     const ps=postAvgs[i];
     const mg=ps['GLOBAL']-pr['GLOBAL'];
-    const cat=mg>0.5?'Mejoría notable':mg>0?'Mejoría poco significante':'Sin mejoría';
+    const cat=mg>=0.5?'Mejoría notable':mg>0?'Mejoría poco significante':'Sin mejoría';
     return{tel:pr.tel,preGlobal:round2(pr['GLOBAL']),postGlobal:round2(ps['GLOBAL']),mejGlobal:round2(mg),cat};
   });
 
@@ -629,13 +629,13 @@ function renderResults(res,tipo){
 
   if(dimChartInstance)dimChartInstance.destroy();
   const ctx=document.getElementById('dimChart').getContext('2d');
-  const dims4=res.analisis.filter(a=>a.dim!=='GLOBAL');
+  const dimsAll=res.analisis.map(a=>({...a,label:a.dim==='GLOBAL'?'Índice Global\nEmpleabilidad':(DIM_META[a.dim]?.label||a.dim)}));
   const dk=document.documentElement.getAttribute('data-theme')==='dark';
   dimChartInstance=new Chart(ctx,{type:'bar',data:{
-    labels:dims4.map(a=>DIM_META[a.dim]?.label||a.dim),
+    labels:dimsAll.map(a=>a.label),
     datasets:[
-      {label:'PRE',data:dims4.map(a=>a.pre),backgroundColor:'rgba(79,152,163,.45)',borderColor:'#4f98a3',borderWidth:2,borderRadius:4},
-      {label:'POST',data:dims4.map(a=>a.post),backgroundColor:'rgba(1,105,111,.7)',borderColor:'#01696f',borderWidth:2,borderRadius:4},
+      {label:'PRE',data:dimsAll.map(a=>a.pre),backgroundColor:'rgba(79,152,163,.45)',borderColor:'#4f98a3',borderWidth:2,borderRadius:4},
+      {label:'POST',data:dimsAll.map(a=>a.post),backgroundColor:'rgba(1,105,111,.7)',borderColor:'#01696f',borderWidth:2,borderRadius:4},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{color:dk?'#cdccca':'#28251d',font:{family:'Inter',size:12}}},
