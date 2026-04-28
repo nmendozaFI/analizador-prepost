@@ -84,6 +84,10 @@ img{display:block;max-width:100%}
 .tipo-badge{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);padding:var(--space-2) var(--space-4);border-radius:var(--radius-full);font-weight:600;margin-bottom:var(--space-5)}
 .tipo-badge-madrid{background:#fce4ec;color:#c2185b}
 .tipo-badge-ciudades{background:#e8eaf6;color:#3949ab}
+.tipo-endesa .tipo-icon{background:#fff3e0;color:#e65100}
+.tipo-badge-endesa{background:#fff3e0;color:#e65100}
+.tipo-endesa-ciudades .tipo-icon{background:#ffe0b2;color:#bf360c;font-size:1rem}
+.tipo-badge-endesa-ciudades{background:#ffe0b2;color:#bf360c}
 
 /* steps */
 .steps-header{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8)}
@@ -140,6 +144,7 @@ img{display:block;max-width:100%}
 .kpi-her::before{background:var(--color-her)}
 .kpi-ent::before{background:var(--color-ent)}
 .kpi-pre::before{background:var(--color-pre)}
+.kpi-global::before{background:#37474f}
 .kpi-label{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted);margin-bottom:var(--space-2)}
 .kpi-vals{display:flex;align-items:baseline;gap:var(--space-2)}
 .kpi-pre-val{font-size:var(--text-lg);font-weight:300;color:var(--color-text-muted);font-variant-numeric:tabular-nums}
@@ -262,6 +267,22 @@ img{display:block;max-width:100%}
             <span>Col. G = Lugar de Residencia · Teléfono en H (8ª)</span>
           </div>
         </label>
+        <label class="tipo-card tipo-endesa" id="cardEndesa">
+          <input type="radio" name="tipo" value="endesa" onchange="onTipoChange()">
+          <div class="tipo-icon">⚡</div>
+          <div class="tipo-card-text">
+            <strong>Endesa Madrid</strong>
+            <span>POST con pregunta Endesa extra · Teléfono en G (7ª)</span>
+          </div>
+        </label>
+        <label class="tipo-card tipo-endesa-ciudades" id="cardEndesaCiudades">
+          <input type="radio" name="tipo" value="endesa-ciudades" onchange="onTipoChange()">
+          <div class="tipo-icon">⚡🗺️</div>
+          <div class="tipo-card-text">
+            <strong>Endesa Ciudades</strong>
+            <span>Col. G = Lugar · Tel. en H · POST con 11 preguntas (sin PRE12)</span>
+          </div>
+        </label>
       </div>
     </div>
 
@@ -276,7 +297,7 @@ img{display:block;max-width:100%}
     <!-- Alerta si no seleccionó tipo -->
     <div class="alert-tipo" id="alertTipo">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Selecciona primero el tipo de encuesta (Madrid o Ciudades) antes de procesar.
+      Selecciona primero el tipo de encuesta antes de procesar.
     </div>
 
     <p class="section-title">Arrastra o selecciona los archivos de encuesta</p>
@@ -502,10 +523,18 @@ function processData(rawPre,rawPost,tipo){
 
   // Las 12 preguntas son las inmediatamente siguientes al teléfono
   const qColsPre=headersPre.slice(telIdxPre+1,telIdxPre+13);
-  const qColsPost=headersPost.slice(telIdxPost+1,telIdxPost+13);
+  // Endesa POST tiene 1 pregunta extra (Sí/No sobre Fundación Endesa) justo después del teléfono
+  // Aplica tanto a 'endesa' (Madrid) como a 'endesa-ciudades'
+  const isEndesa = tipo==='endesa' || tipo==='endesa-ciudades';
+  const postOffset = isEndesa ? 2 : 1;
+  // Endesa Ciudades tiene solo 11 preguntas Likert en POST (la #12 es una abierta sobre talleres, no Likert)
+  const nQPost = tipo==='endesa-ciudades' ? 11 : 12;
+  const qColsPost=headersPost.slice(telIdxPost+postOffset,telIdxPost+postOffset+nQPost);
 
-  const lugarColPre= tipo==='ciudades' ? headersPre[headersPre.indexOf(TEL_COL_NAME)-1] : null;
-  const lugarColPost= tipo==='ciudades' ? headersPost[headersPost.indexOf(TEL_COL_NAME)-1] : null;
+  // Lugar de Residencia: en Ciudades (normal y Endesa) está en la col anterior al teléfono
+  const hasLugar = tipo==='ciudades' || tipo==='endesa-ciudades';
+  const lugarColPre= hasLugar ? headersPre[headersPre.indexOf(TEL_COL_NAME)-1] : null;
+  const lugarColPost= hasLugar ? headersPost[headersPost.indexOf(TEL_COL_NAME)-1] : null;
 
   // PRE
   const preInvalid=[];const preMap=new Map();const preDups=[];
@@ -537,6 +566,15 @@ function processData(rawPre,rawPost,tipo){
 
   const preMatched=tels.map(t=>preMap.get(t));
   const postMatched=tels.map(t=>postMap.get(t));
+
+  // ── Endesa Ciudades: el POST no incluye la pregunta #12 ("derechos y obligaciones").
+  // Para mantener simetría en la comparación PRE↔POST (Opción A), se anula PRE12
+  // también en el PRE matcheado, así los promedios se calculan sobre los mismos 11 ítems.
+  // dimAvgs ya filtra null/NaN, no requiere cambios adicionales.
+  if(tipo==='endesa-ciudades'){
+    for(const r of preMatched) r['PRE12']=null;
+    // (En postMatched ya quedó null porque qColsPost solo trajo 11 columnas.)
+  }
 
   function dimAvgs(rows){
     return rows.map(r=>{
@@ -604,11 +642,15 @@ function fillTable(tableId,rows){
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-const DIM_META={'MOTIVACION':{cls:'mot',label:'Motivación'},'HERRAMIENTAS':{cls:'her',label:'Herramientas'},'ENTREVISTAS':{cls:'ent',label:'Entrevistas'},'PREPARACION LABORAL':{cls:'pre',label:'Preparación'}};
+const DIM_META={'MOTIVACION':{cls:'mot',label:'Motivación'},'HERRAMIENTAS':{cls:'her',label:'Herramientas'},'ENTREVISTAS':{cls:'ent',label:'Entrevistas'},'PREPARACION LABORAL':{cls:'pre',label:'Preparación'},'GLOBAL':{cls:'global',label:'Índice Global Empleabilidad'}};
 
 function renderResults(res,tipo){
   const badgeHtml=tipo==='ciudades'
     ?'<span class="tipo-badge tipo-badge-ciudades">🗺️ Otras Ciudades</span>'
+    :tipo==='endesa'
+    ?'<span class="tipo-badge tipo-badge-endesa">⚡ Endesa Madrid</span>'
+    :tipo==='endesa-ciudades'
+    ?'<span class="tipo-badge tipo-badge-endesa-ciudades">⚡🗺️ Endesa Ciudades</span>'
     :'<span class="tipo-badge tipo-badge-madrid">🏙️ Madrid</span>';
 
   document.getElementById('metaInfo').innerHTML=`
@@ -619,7 +661,7 @@ function renderResults(res,tipo){
   `;
 
   const grid=document.getElementById('kpiGrid');grid.innerHTML='';
-  res.analisis.filter(a=>a.dim!=='GLOBAL').forEach(a=>{
+  res.analisis.forEach(a=>{
     const m=DIM_META[a.dim]||{cls:'pre',label:a.dim};
     grid.innerHTML+=`<div class="kpi-card kpi-${m.cls}">
       <div class="kpi-label">${m.label}</div>
@@ -652,6 +694,9 @@ function renderResults(res,tipo){
 
   // Trazabilidad
   const t=res.traz;
+  const usaColH = tipo==='ciudades' || tipo==='endesa-ciudades';
+  const colTelTxt = usaColH ? 'H (col 8)' : 'G (col 7)';
+  const tipoTxt = tipo==='ciudades'?'Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid';
   document.getElementById('trazSummary').innerHTML=`
     <div class="traz-box traz-pre">
       <div class="traz-box-title">📋 Encuesta PRE</div>
@@ -660,7 +705,7 @@ function renderResults(res,tipo){
       <div class="traz-row"><span class="lbl">Duplicados eliminados</span><span class="val ${t.pre.dups.length?'warn':'ok'}">${t.pre.dups.length}</span></div>
       <div class="traz-row"><span class="lbl">Registros válidos únicos</span><span class="val ok">${t.pre.valid}</span></div>
       <div class="traz-row"><span class="lbl">Solo en PRE (sin POST)</span><span class="val warn">${t.soloPre.length}</span></div>
-      ${tipo==='ciudades'?`<div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">H (col 8)</span></div>`:'<div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">G (col 7)</span></div>'}
+      <div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">${colTelTxt}</span></div>
     </div>
     <div class="traz-box traz-post">
       <div class="traz-box-title">📋 Encuesta POST</div>
@@ -669,7 +714,9 @@ function renderResults(res,tipo){
       <div class="traz-row"><span class="lbl">Duplicados eliminados</span><span class="val ${t.post.dups.length?'warn':'ok'}">${t.post.dups.length}</span></div>
       <div class="traz-row"><span class="lbl">Registros válidos únicos</span><span class="val ok">${t.post.valid}</span></div>
       <div class="traz-row"><span class="lbl">Solo en POST (sin PRE)</span><span class="val warn">${t.soloPost.length}</span></div>
-      ${tipo==='ciudades'?`<div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">H (col 8)</span></div>`:'<div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">G (col 7)</span></div>'}
+      <div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">${colTelTxt}</span></div>
+      ${tipo==='endesa'||tipo==='endesa-ciudades'?`<div class="traz-row"><span class="lbl">Nota</span><span class="val">Col. pregunta Endesa omitida</span></div>`:''}
+      ${tipo==='endesa-ciudades'?`<div class="traz-row"><span class="lbl">Nota</span><span class="val">Solo 11 preguntas Likert (sin PRE12)</span></div>`:''}
     </div>
     <div class="traz-box traz-cruce">
       <div class="traz-box-title">🔗 Cruce final</div>
@@ -677,7 +724,7 @@ function renderResults(res,tipo){
       <div class="traz-row"><span class="lbl">% cobertura sobre PRE</span><span class="val ok">${((t.cruzados.length/Math.max(t.pre.valid,1))*100).toFixed(1)}%</span></div>
       <div class="traz-row"><span class="lbl">% cobertura sobre POST</span><span class="val ok">${((t.cruzados.length/Math.max(t.post.valid,1))*100).toFixed(1)}%</span></div>
       <div class="traz-row"><span class="lbl">No cruzados total</span><span class="val ${(t.soloPre.length+t.soloPost.length)?'warn':'ok'}">${t.soloPre.length+t.soloPost.length}</span></div>
-      <div class="traz-row"><span class="lbl">Tipo encuesta</span><span class="val">${tipo==='ciudades'?'Ciudades':'Madrid'}</span></div>
+      <div class="traz-row"><span class="lbl">Tipo encuesta</span><span class="val">${tipoTxt}</span></div>
     </div>
   `;
 
@@ -692,7 +739,7 @@ function renderResults(res,tipo){
     <span class="info-chip">Global PRE: ${fmt(gl.pre)}</span>
     <span class="info-chip">Global POST: ${fmt(gl.post)}</span>
     <span class="info-chip">Mejora: +${fmt(gl.mejora)}</span>
-    <span class="info-chip">${tipo==='ciudades'?'🗺️ Ciudades':'🏙️ Madrid'}</span>
+    <span class="info-chip">${tipo==='ciudades'?'🗺️ Ciudades':tipo==='endesa'?'⚡ Endesa Madrid':tipo==='endesa-ciudades'?'⚡🗺️ Endesa Ciudades':'🏙️ Madrid'}</span>
   `;
 }
 
@@ -820,10 +867,12 @@ async function buildExcel(res,tipo){
   wsTraz.getRow(1).height=28;
   wsTraz.mergeCells('A1:F1');
   const titCell=wsTraz.getCell('A1');
-  titCell.value=`TRAZABILIDAD — Tipo: ${tipo==='ciudades'?'Otras Ciudades':'Madrid'} | ${new Date().toLocaleDateString('es-ES')}`;
+  titCell.value=`TRAZABILIDAD — Tipo: ${tipo==='ciudades'?'Otras Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid'} | ${new Date().toLocaleDateString('es-ES')}`;
   titCell.font={bold:true,size:13,color:{argb:'FF'+TEAL}}; titCell.alignment={horizontal:'left',vertical:'middle',indent:1};
 
   let row=3;
+  const colTel = (tipo==='ciudades' || tipo==='endesa-ciudades') ? 'H (col 8)' : 'G (col 7)';
+  const tipoExcel = tipo==='ciudades'?'Otras Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid';
   const summaryData=[
     ['','PRE','POST','CRUCE','',''],
     ['Filas totales leídas',t.pre.total,t.post.total,'','',''],
@@ -833,8 +882,9 @@ async function buildExcel(res,tipo){
     ['Solo en este archivo',t.soloPre.length,t.soloPost.length,'','',''],
     ['Participantes cruzados','','',t.cruzados.length,'',''],
     ['% cobertura PRE','','',((t.cruzados.length/Math.max(t.pre.valid,1))*100).toFixed(1)+'%','',''],
-    ['Columna teléfono usado',tipo==='ciudades'?'H (col 8)':'G (col 7)',tipo==='ciudades'?'H (col 8)':'G (col 7)','','',''],
-  ];
+    ['Columna teléfono usado',colTel,colTel,'','',''],
+    ...((tipo==='endesa'||tipo==='endesa-ciudades')?[['POST: col. pregunta Endesa','Omitida (Sí/No)','','','','']]:[]),
+    ...(tipo==='endesa-ciudades'?[['POST: solo 11 preguntas Likert','PRE12 anulado en ambos lados (simetría)','','','','']]:[])];
   summaryData.forEach((r2,ri)=>{
     r2.forEach((v,ci)=>{
       const cell=wsTraz.getCell(row+ri,ci+1); cell.value=v; cell.border=brd(); cell.alignment=ctrAlign;
@@ -876,7 +926,7 @@ async function buildExcel(res,tipo){
     t.cruzados.map((tel,i)=>[i+1,tel,'Cruzado ✓']));
 
   row+=1;
-  wsTraz.getCell(row,1).value=`Generado: ${new Date().toLocaleString('es-ES')} | Tipo: ${tipo==='ciudades'?'Otras Ciudades':'Madrid'} | Escuela de Fortalecimiento 2026`;
+  wsTraz.getCell(row,1).value=`Generado: ${new Date().toLocaleString('es-ES')} | Tipo: ${tipo==='ciudades'?'Otras Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid'} | Escuela de Fortalecimiento 2026`;
   wsTraz.getCell(row,1).font={italic:true,size:9,color:{argb:'FF999999'}};
   [18,30,45,20].forEach((w,i)=>wsTraz.getColumn(i+1).width=w);
 
@@ -890,7 +940,7 @@ btnRun.addEventListener('click',async()=>{
   btnRun.disabled=true; progressLog.innerHTML=''; progressBar.style.width='0%';
   resultsEl.classList.remove('visible');
   try{
-    const tipoLabel=tipoEncuesta==='ciudades'?'Otras Ciudades (tel. col H)':'Madrid (tel. col G)';
+    const tipoLabel=tipoEncuesta==='ciudades'?'Otras Ciudades (tel. col H)':tipoEncuesta==='endesa'?'Endesa Madrid (tel. col G, +1 col extra en POST)':tipoEncuesta==='endesa-ciudades'?'Endesa Ciudades (tel. col H, +1 col extra en POST, 11 preguntas Likert)':'Madrid (tel. col G)';
     log(`📋 Modo: ${tipoLabel}`,5);
     log('📂 Leyendo archivo PRE...',10);
     const rawPre=parseXlsx(fileDataA);
@@ -918,7 +968,7 @@ btnRun.addEventListener('click',async()=>{
 
 btnDownload.addEventListener('click',()=>{
   if(!resultBlob)return;
-  const d=new Date(); const tipo=tipoEncuesta==='ciudades'?'Ciudades':'Madrid';
+  const d=new Date(); const tipo=tipoEncuesta==='ciudades'?'Ciudades':tipoEncuesta==='endesa'?'Endesa-Madrid':tipoEncuesta==='endesa-ciudades'?'Endesa-Ciudades':'Madrid';
   const a=document.createElement('a'); a.href=URL.createObjectURL(resultBlob);
   a.download=`Analisis-PRE-POST-${tipo}-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`;
   a.click(); URL.revokeObjectURL(a.href);
