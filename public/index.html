@@ -1,978 +1,162 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analizador PRE-POST · Escuela de Fortalecimiento</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root,[data-theme="light"]{
-  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#ffffff;
-  --color-surface-offset:#f0eeea;--color-border:#d4d1ca;--color-divider:#e2dfda;
-  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#b0aea9;
-  --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-light:#e0f0f0;
-  --color-success:#437a22;--color-success-bg:#f0f7ea;
-  --color-warning:#964219;--color-warning-bg:#fef4ed;
-  --color-error:#a12c7b;--color-error-bg:#fdf0f8;
-  --color-mot:#0e7b82;--color-mot-bg:#e0f4f5;
-  --color-her:#2e7d32;--color-her-bg:#e8f5e9;
-  --color-ent:#e65100;--color-ent-bg:#fff3e0;
-  --color-pre:#6a1b9a;--color-pre-bg:#f3e5f5;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);
-  --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-xl:1rem;
-  --font-body:'Inter',system-ui,sans-serif;--font-mono:'DM Mono',monospace;
-  --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);
-  --text-sm:clamp(.875rem,.8rem + .35vw,1rem);
-  --text-base:clamp(1rem,.95rem + .25vw,1.125rem);
-  --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
-  --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2rem);
-  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
-  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;
-  --transition:180ms cubic-bezier(.16,1,.3,1);
-}
-[data-theme="dark"]{
-  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#222120;
-  --color-surface-offset:#1d1c1a;--color-border:#393836;--color-divider:#262523;
-  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
-  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-light:#1e3a3c;
-  --color-success:#6daa45;--color-success-bg:#1e2d18;
-  --color-warning:#bb653b;--color-warning-bg:#2d1f16;
-  --color-error:#d163a7;--color-error-bg:#2a1424;
-  --color-mot:#4f98a3;--color-mot-bg:#1a2e30;
-  --color-her:#6daa45;--color-her-bg:#1a2d18;
-  --color-ent:#f4996a;--color-ent-bg:#2d1c10;
-  --color-pre:#b57bee;--color-pre-bg:#251540;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.25);--shadow-md:0 4px 16px rgba(0,0,0,.35);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
-body{font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);min-height:100dvh;line-height:1.6}
-a,button,[role="button"],input,select{transition:color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);font:inherit;color:inherit}
-button{cursor:pointer;background:none;border:none}
-img{display:block;max-width:100%}
-.app{display:grid;grid-template-rows:auto 1fr;min-height:100dvh}
-.topbar{background:var(--color-surface);border-bottom:1px solid var(--color-border);
-  padding:var(--space-3) var(--space-6);display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm)}
-.logo{display:flex;align-items:center;gap:var(--space-3)}
-.logo svg{color:var(--color-primary);flex-shrink:0}
-.logo-text{display:flex;flex-direction:column;line-height:1.2}
-.logo-title{font-size:var(--text-sm);font-weight:700}
-.logo-sub{font-size:var(--text-xs);color:var(--color-text-muted)}
-.topbar-actions{display:flex;align-items:center;gap:var(--space-3)}
-.theme-btn{width:36px;height:36px;border-radius:var(--radius-md);display:grid;place-items:center;
-  color:var(--color-text-muted);border:1px solid var(--color-border)}
-.theme-btn:hover{background:var(--color-surface-offset);color:var(--color-text)}
-.main{padding:var(--space-8) var(--space-6);max-width:1000px;margin-inline:auto;width:100%}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analizador PRE-POST</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#ffffff;
+      --color-border:#d4d1ca; --color-text:#28251d; --color-text-muted:#7a7974;
+      --color-primary:#01696f; --color-primary-hover:#0c4e54; --shadow-sm:0 1px 3px rgba(0,0,0,.06);
+      --shadow-md:0 4px 16px rgba(0,0,0,.08); --radius-md:.5rem; --radius-xl:1rem;
+      --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-6:1.5rem; --space-8:2rem;
+      --text-sm:.95rem; --text-base:1rem; --text-lg:1.25rem; --text-xl:2rem;
+    }
+    [data-theme="dark"]{
+      --color-bg:#171614; --color-surface:#1c1b19; --color-surface-2:#222120;
+      --color-border:#393836; --color-text:#cdccca; --color-text-muted:#797876;
+      --color-primary:#4f98a3; --color-primary-hover:#227f8b; --shadow-sm:0 1px 3px rgba(0,0,0,.25);
+      --shadow-md:0 4px 16px rgba(0,0,0,.35);
+    }
 
-/* ── TIPO SELECT ── */
-.tipo-section{margin-bottom:var(--space-6)}
-.tipo-label{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
-.tipo-options{display:flex;gap:var(--space-3);flex-wrap:wrap}
-.tipo-card{border:2px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);cursor:pointer;background:var(--color-surface);display:flex;align-items:center;gap:var(--space-3);min-width:200px;transition:border-color var(--transition),background var(--transition)}
-.tipo-card:hover{border-color:var(--color-primary);background:var(--color-primary-light)}
-.tipo-card.selected{border-color:var(--color-primary);background:var(--color-primary-light)}
-.tipo-card input[type="radio"]{display:none}
-.tipo-icon{width:38px;height:38px;border-radius:var(--radius-md);display:grid;place-items:center;flex-shrink:0;font-size:1.25rem}
-.tipo-madrid .tipo-icon{background:#fce4ec;color:#c2185b}
-.tipo-ciudades .tipo-icon{background:#e8eaf6;color:#3949ab}
-.tipo-card-text strong{font-size:var(--text-sm);font-weight:700;display:block}
-.tipo-card-text span{font-size:var(--text-xs);color:var(--color-text-muted)}
-.tipo-card.selected .tipo-card-text span{color:var(--color-primary)}
-.tipo-badge{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);padding:var(--space-2) var(--space-4);border-radius:var(--radius-full);font-weight:600;margin-bottom:var(--space-5)}
-.tipo-badge-madrid{background:#fce4ec;color:#c2185b}
-.tipo-badge-ciudades{background:#e8eaf6;color:#3949ab}
-.tipo-endesa .tipo-icon{background:#fff3e0;color:#e65100}
-.tipo-badge-endesa{background:#fff3e0;color:#e65100}
-.tipo-endesa-ciudades .tipo-icon{background:#ffe0b2;color:#bf360c;font-size:1rem}
-.tipo-badge-endesa-ciudades{background:#ffe0b2;color:#bf360c}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Inter',system-ui,sans-serif;
+      background:var(--color-bg);
+      color:var(--color-text);
+      min-height:100vh;
+    }
 
-/* steps */
-.steps-header{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8)}
-.step-chip{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted)}
-.step-chip .num{width:22px;height:22px;border-radius:50%;background:var(--color-surface-offset);border:1px solid var(--color-border);display:grid;place-items:center;font-size:.65rem;font-weight:700;color:var(--color-text-muted)}
-.step-chip.active .num{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
-.step-chip.active{color:var(--color-primary)}
-.step-chip.done .num{background:var(--color-success);border-color:var(--color-success);color:#fff}
-.step-sep{height:1px;flex:1;background:var(--color-divider)}
+    .page{
+      max-width:1100px;
+      margin:0 auto;
+      padding:var(--space-8) var(--space-6);
+    }
 
-/* upload */
-.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);margin-bottom:var(--space-6)}
-@media(max-width:600px){.upload-grid{grid-template-columns:1fr}}
-.upload-card{border:2px dashed var(--color-border);border-radius:var(--radius-xl);padding:var(--space-8) var(--space-6);text-align:center;cursor:pointer;position:relative;background:var(--color-surface);transition:border-color var(--transition),background var(--transition)}
-.upload-card:hover,.upload-card.drag-over{border-color:var(--color-primary);background:var(--color-primary-light)}
-.upload-card.loaded{border-style:solid;border-color:var(--color-success);background:var(--color-success-bg)}
-.upload-card input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{width:44px;height:44px;border-radius:var(--radius-lg);background:var(--color-surface-offset);display:grid;place-items:center;margin-inline:auto;margin-bottom:var(--space-3);color:var(--color-primary)}
-.upload-card.loaded .upload-icon{background:var(--color-success-bg);color:var(--color-success)}
-.upload-label{font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)}
-.upload-hint{font-size:var(--text-xs);color:var(--color-text-muted)}
-.upload-filename{font-size:var(--text-xs);font-family:var(--font-mono);color:var(--color-success);margin-top:var(--space-2);font-weight:500}
-.badge-encuesta{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius-full);margin-bottom:var(--space-3)}
-.badge-pre{background:var(--color-mot-bg);color:var(--color-mot)}
-.badge-post{background:var(--color-pre-bg);color:var(--color-pre)}
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:var(--space-8);
+    }
 
-/* run */
-.run-section{display:flex;justify-content:center;margin-bottom:var(--space-8)}
-.btn-run{background:var(--color-primary);color:#fff;padding:var(--space-3) var(--space-10);border-radius:var(--radius-lg);font-size:var(--text-sm);font-weight:700;box-shadow:var(--shadow-md);display:flex;align-items:center;gap:var(--space-2)}
-.btn-run:hover:not(:disabled){background:var(--color-primary-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
-.btn-run:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .brand h1{
+      font-size:var(--text-xl);
+      margin-bottom:var(--space-2);
+    }
 
-/* progress */
-.progress-wrap{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6);display:none}
-.progress-wrap.visible{display:block}
-.progress-title{font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
-.progress-bar-wrap{height:8px;background:var(--color-surface-offset);border-radius:var(--radius-full);overflow:hidden;margin-bottom:var(--space-3)}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--color-primary),var(--color-success));border-radius:var(--radius-full);transition:width .4s ease;width:0%}
-.progress-log{font-size:var(--text-xs);font-family:var(--font-mono);color:var(--color-text-muted);max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
-.log-line{padding:2px 0;border-bottom:1px solid var(--color-divider)}
-.log-line.warn{color:var(--color-warning)}
-.log-line.err{color:var(--color-error)}
-.log-line.ok{color:var(--color-success)}
-.log-line:last-child{border:none;color:var(--color-text)}
+    .brand p{
+      color:var(--color-text-muted);
+      font-size:var(--text-base);
+      max-width:60ch;
+    }
 
-/* results */
-.results{display:none}
-.results.visible{display:block}
-.results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin-bottom:var(--space-6)}
-@media(max-width:700px){.results-grid{grid-template-columns:1fr 1fr}}
-.kpi-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4) var(--space-5);position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
-.kpi-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
-.kpi-mot::before{background:var(--color-mot)}
-.kpi-her::before{background:var(--color-her)}
-.kpi-ent::before{background:var(--color-ent)}
-.kpi-pre::before{background:var(--color-pre)}
-.kpi-global::before{background:#37474f}
-.kpi-label{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted);margin-bottom:var(--space-2)}
-.kpi-vals{display:flex;align-items:baseline;gap:var(--space-2)}
-.kpi-pre-val{font-size:var(--text-lg);font-weight:300;color:var(--color-text-muted);font-variant-numeric:tabular-nums}
-.kpi-arrow{font-size:var(--text-xs);color:var(--color-text-faint)}
-.kpi-post-val{font-size:var(--text-lg);font-weight:700;font-variant-numeric:tabular-nums}
-.kpi-mejora{margin-top:var(--space-1);font-size:var(--text-xs);font-weight:600;display:inline-flex;align-items:center;gap:4px;color:var(--color-success)}
-.chart-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm)}
-.chart-card h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-4)}
-.chart-inner{position:relative;height:220px}
-.mejora-row{display:flex;gap:var(--space-3);justify-content:center;margin-bottom:var(--space-6);flex-wrap:wrap}
-.mejora-badge{border-radius:var(--radius-xl);padding:var(--space-3) var(--space-5);text-align:center;min-width:140px;box-shadow:var(--shadow-sm)}
-.mejora-badge .count{font-size:var(--text-xl);font-weight:800;font-variant-numeric:tabular-nums}
-.mejora-badge .label{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.mb-notable{background:var(--color-success-bg);color:var(--color-success)}
-.mb-poco{background:var(--color-warning-bg);color:var(--color-warning)}
-.mb-sin{background:var(--color-error-bg);color:var(--color-error)}
+    .theme-btn{
+      border:1px solid var(--color-border);
+      background:var(--color-surface);
+      color:var(--color-text);
+      width:40px;
+      height:40px;
+      border-radius:var(--radius-md);
+      cursor:pointer;
+      box-shadow:var(--shadow-sm);
+    }
 
-/* trazabilidad */
-.traz-section{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm)}
-.traz-section h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-2)}
-.traz-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin-bottom:var(--space-5)}
-@media(max-width:600px){.traz-summary{grid-template-columns:1fr}}
-.traz-box{border-radius:var(--radius-lg);padding:var(--space-4);border:1px solid var(--color-border)}
-.traz-box-title{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--space-3)}
-.traz-row{display:flex;justify-content:space-between;align-items:center;font-size:var(--text-xs);padding:3px 0;border-bottom:1px solid var(--color-divider)}
-.traz-row:last-child{border:none}
-.traz-row .lbl{color:var(--color-text-muted)}
-.traz-row .val{font-weight:600;font-family:var(--font-mono)}
-.traz-row .val.ok{color:var(--color-success)}
-.traz-row .val.warn{color:var(--color-warning)}
-.traz-row .val.err{color:var(--color-error)}
-.traz-pre{background:var(--color-mot-bg)}
-.traz-post{background:var(--color-pre-bg)}
-.traz-cruce{background:var(--color-success-bg)}
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:var(--space-6);
+    }
 
-/* tabs */
-.tabs{display:flex;gap:2px;background:var(--color-surface-offset);border-radius:var(--radius-md);padding:3px;margin-bottom:var(--space-4);flex-wrap:wrap}
-.tab-btn{font-size:var(--text-xs);font-weight:600;padding:var(--space-2) var(--space-4);border-radius:calc(var(--radius-md) - 2px);color:var(--color-text-muted)}
-.tab-btn.active{background:var(--color-surface-2);color:var(--color-text);box-shadow:var(--shadow-sm)}
-.tab-btn:hover:not(.active){color:var(--color-text)}
-.tab-content{display:none}
-.tab-content.active{display:block}
+    .card{
+      display:block;
+      text-decoration:none;
+      color:inherit;
+      background:var(--color-surface-2);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-xl);
+      padding:var(--space-8);
+      box-shadow:var(--shadow-sm);
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
 
-/* mini table */
-.mini-table-wrap{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--color-border)}
-.mini-table{width:100%;border-collapse:collapse;font-size:var(--text-xs)}
-.mini-table th{background:var(--color-surface-offset);font-weight:700;padding:var(--space-2) var(--space-3);text-align:left;border-bottom:1px solid var(--color-border);white-space:nowrap;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.04em;font-size:.65rem}
-.mini-table td{padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-divider);font-family:var(--font-mono);white-space:nowrap}
-.mini-table tr:last-child td{border:none}
-.mini-table tr:hover td{background:var(--color-surface-offset)}
-.tag{display:inline-block;font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:var(--radius-full);text-transform:uppercase;letter-spacing:.04em}
-.tag-ok{background:var(--color-success-bg);color:var(--color-success)}
-.tag-warn{background:var(--color-warning-bg);color:var(--color-warning)}
-.tag-err{background:var(--color-error-bg);color:var(--color-error)}
+    .card:hover{
+      transform:translateY(-3px);
+      box-shadow:var(--shadow-md);
+      border-color:var(--color-primary);
+    }
 
-/* download */
-.download-section{text-align:center;padding:var(--space-8);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
-.download-icon{width:56px;height:56px;border-radius:var(--radius-xl);background:var(--color-primary-light);display:grid;place-items:center;margin-inline:auto;margin-bottom:var(--space-4);color:var(--color-primary)}
-.download-section h3{font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-2)}
-.download-section p{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5);max-width:48ch;margin-inline:auto}
-.btn-download{background:var(--color-primary);color:#fff;padding:var(--space-3) var(--space-8);border-radius:var(--radius-lg);font-size:var(--text-sm);font-weight:700;display:inline-flex;align-items:center;gap:var(--space-2);box-shadow:var(--shadow-md)}
-.btn-download:hover{background:var(--color-primary-hover);transform:translateY(-1px)}
-.info-chips{display:flex;justify-content:center;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-4)}
-.info-chip{font-size:var(--text-xs);color:var(--color-text-muted);background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-full);padding:4px 12px;font-family:var(--font-mono)}
-.section-title{font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4)}
-.meta-info{font-size:var(--text-xs);color:var(--color-text-muted);display:flex;gap:var(--space-4);flex-wrap:wrap;margin-bottom:var(--space-6)}
+    .card h2{
+      font-size:var(--text-lg);
+      margin-bottom:var(--space-3);
+    }
 
-/* alert box */
-.alert-tipo{display:none;align-items:center;gap:var(--space-3);background:var(--color-warning-bg);border:1px solid var(--color-warning);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-5);font-size:var(--text-xs);font-weight:600;color:var(--color-warning)}
-.alert-tipo.visible{display:flex}
-</style>
+    .card p{
+      color:var(--color-text-muted);
+      font-size:var(--text-sm);
+      line-height:1.6;
+    }
+
+    .card span{
+      display:inline-block;
+      margin-top:var(--space-6);
+      color:var(--color-primary);
+      font-weight:600;
+    }
+
+    @media (max-width: 900px){
+      .cards{grid-template-columns:1fr;}
+    }
+  </style>
 </head>
 <body>
-
-<div class="app">
-  <header class="topbar">
-    <div class="logo">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="Logo">
-        <rect width="32" height="32" rx="8" fill="currentColor" opacity=".12"/>
-        <rect x="6" y="22" width="4" height="6" rx="1" fill="currentColor"/>
-        <rect x="12" y="17" width="4" height="11" rx="1" fill="currentColor"/>
-        <rect x="18" y="12" width="4" height="16" rx="1" fill="currentColor"/>
-        <rect x="24" y="7" width="4" height="21" rx="1" fill="currentColor"/>
-        <polyline points="8,20 14,14 20,9 26,5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-      <div class="logo-text">
-        <span class="logo-title">Analizador PRE-POST</span>
-        <span class="logo-sub">Escuela de Fortalecimiento · 2026</span>
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Analizador PRE-POST</h1>
+        <p>Selecciona el flujo que quieres abrir para analizar los datos del programa.</p>
       </div>
-    </div>
-    <div class="topbar-actions">
-      <button class="theme-btn" data-theme-toggle aria-label="Cambiar tema">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
-    </div>
-  </header>
-
-  <main class="main">
-
-    <!-- PASO 0: Tipo de encuesta -->
-    <div class="tipo-section">
-      <div class="tipo-label">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Paso 1 — Selecciona el tipo de encuesta
-      </div>
-      <div class="tipo-options">
-        <label class="tipo-card tipo-madrid" id="cardMadrid">
-          <input type="radio" name="tipo" value="madrid" onchange="onTipoChange()">
-          <div class="tipo-icon">🏙️</div>
-          <div class="tipo-card-text">
-            <strong>Madrid</strong>
-            <span>Teléfono en columna G (7ª)</span>
-          </div>
-        </label>
-        <label class="tipo-card tipo-ciudades" id="cardCiudades">
-          <input type="radio" name="tipo" value="ciudades" onchange="onTipoChange()">
-          <div class="tipo-icon">🗺️</div>
-          <div class="tipo-card-text">
-            <strong>Otras Ciudades</strong>
-            <span>Col. G = Lugar de Residencia · Teléfono en H (8ª)</span>
-          </div>
-        </label>
-        <label class="tipo-card tipo-endesa" id="cardEndesa">
-          <input type="radio" name="tipo" value="endesa" onchange="onTipoChange()">
-          <div class="tipo-icon">⚡</div>
-          <div class="tipo-card-text">
-            <strong>Endesa Madrid</strong>
-            <span>POST con pregunta Endesa extra · Teléfono en G (7ª)</span>
-          </div>
-        </label>
-        <label class="tipo-card tipo-endesa-ciudades" id="cardEndesaCiudades">
-          <input type="radio" name="tipo" value="endesa-ciudades" onchange="onTipoChange()">
-          <div class="tipo-icon">⚡🗺️</div>
-          <div class="tipo-card-text">
-            <strong>Endesa Ciudades</strong>
-            <span>Col. G = Lugar · Tel. en H · POST con 11 preguntas (sin PRE12)</span>
-          </div>
-        </label>
-      </div>
+      <button class="theme-btn" data-theme-toggle aria-label="Cambiar tema">◐</button>
     </div>
 
-    <div class="steps-header">
-      <div class="step-chip active" id="step1chip"><div class="num">2</div> Subir archivos</div>
-      <div class="step-sep"></div>
-      <div class="step-chip" id="step2chip"><div class="num">3</div> Procesar</div>
-      <div class="step-sep"></div>
-      <div class="step-chip" id="step3chip"><div class="num">4</div> Descargar</div>
-    </div>
+    <section class="cards">
+      <a class="card" href="./ef.html">
+        <h2>EF</h2>
+        <p>Accede al analizador de Escuela de Fortalecimiento con carga de encuestas, cruce por teléfono y exportación a Excel.</p>
+        <span>Abrir EF →</span>
+      </a>
 
-    <!-- Alerta si no seleccionó tipo -->
-    <div class="alert-tipo" id="alertTipo">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Selecciona primero el tipo de encuesta antes de procesar.
-    </div>
+      <a class="card" href="./it.html">
+        <h2>IT</h2>
+        <p>Abre el flujo específico de Integra-Te con su lógica, archivos y resultados independientes.</p>
+        <span>Abrir IT →</span>
+      </a>
 
-    <p class="section-title">Arrastra o selecciona los archivos de encuesta</p>
-    <div class="upload-grid">
-      <div class="upload-card" id="dropA">
-        <input type="file" accept=".xlsx" id="fileA" aria-label="Encuesta PRE">
-        <div class="badge-encuesta badge-pre">Encuesta A · PRE</div>
-        <div class="upload-icon" id="iconA">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <div class="upload-label" id="labelA">Encuesta Previa</div>
-        <div class="upload-hint">Respuestas en texto: Siempre / A menudo / A veces / Nunca</div>
-        <div class="upload-filename" id="fileNameA" style="display:none"></div>
-      </div>
-      <div class="upload-card" id="dropB">
-        <input type="file" accept=".xlsx" id="fileB" aria-label="Encuesta POST">
-        <div class="badge-encuesta badge-post">Encuesta B · POST</div>
-        <div class="upload-icon" id="iconB">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <div class="upload-label" id="labelB">Encuesta Posterior</div>
-        <div class="upload-hint">Respuestas ya en formato numérico (1–4)</div>
-        <div class="upload-filename" id="fileNameB" style="display:none"></div>
-      </div>
-    </div>
+      <a class="card" href="./seguimiento.html">
+        <h2>Seguimiento</h2>
+        <p>Entra en el análisis de seguimiento para revisar evolución, trazabilidad y cruces posteriores.</p>
+        <span>Abrir Seguimiento →</span>
+      </a>
+    </section>
+  </div>
 
-    <div class="run-section">
-      <button class="btn-run" id="btnRun" disabled>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Analizar encuestas
-      </button>
-    </div>
-
-    <div class="progress-wrap" id="progressWrap">
-      <div class="progress-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Procesando...
-      </div>
-      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
-      <div class="progress-log" id="progressLog"></div>
-    </div>
-
-    <div class="results" id="results">
-      <div class="meta-info" id="metaInfo"></div>
-      <p class="section-title">Análisis por dimensión</p>
-      <div class="results-grid" id="kpiGrid"></div>
-      <div class="chart-card">
-        <h3>Evolución PRE → POST por dimensión</h3>
-        <div class="chart-inner"><canvas id="dimChart"></canvas></div>
-      </div>
-      <p class="section-title">Distribución de mejora individual</p>
-      <div class="mejora-row" id="mejoraRow"></div>
-
-      <!-- TRAZABILIDAD -->
-      <div class="traz-section">
-        <h3>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Trazabilidad y control de calidad de datos
-        </h3>
-        <div class="traz-summary" id="trazSummary"></div>
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab(event,'pre-invalidos')">⚠ PRE inválidos</button>
-          <button class="tab-btn" onclick="switchTab(event,'post-invalidos')">⚠ POST inválidos</button>
-          <button class="tab-btn" onclick="switchTab(event,'solo-pre')">Solo en PRE</button>
-          <button class="tab-btn" onclick="switchTab(event,'solo-post')">Solo en POST</button>
-          <button class="tab-btn" onclick="switchTab(event,'cruzados')">✓ Cruzados</button>
-        </div>
-        <div class="tab-content active" id="tab-pre-invalidos">
-          <div class="mini-table-wrap"><table class="mini-table" id="tbl-pre-invalidos"><thead><tr><th>#</th><th>Valor original</th><th>Motivo</th></tr></thead><tbody></tbody></table></div>
-        </div>
-        <div class="tab-content" id="tab-post-invalidos">
-          <div class="mini-table-wrap"><table class="mini-table" id="tbl-post-invalidos"><thead><tr><th>#</th><th>Valor original</th><th>Motivo</th></tr></thead><tbody></tbody></table></div>
-        </div>
-        <div class="tab-content" id="tab-solo-pre">
-          <div class="mini-table-wrap"><table class="mini-table" id="tbl-solo-pre"><thead><tr><th>#</th><th>Teléfono</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
-        </div>
-        <div class="tab-content" id="tab-solo-post">
-          <div class="mini-table-wrap"><table class="mini-table" id="tbl-solo-post"><thead><tr><th>#</th><th>Teléfono</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
-        </div>
-        <div class="tab-content" id="tab-cruzados">
-          <div class="mini-table-wrap"><table class="mini-table" id="tbl-cruzados"><thead><tr><th>#</th><th>Teléfono</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- DESCARGA -->
-      <div class="download-section">
-        <div class="download-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        </div>
-        <h3>Excel completo listo</h3>
-        <p>7 hojas: PRE · POST · Promedios PRE/POST · Análisis · Análisis individual · <strong>Trazabilidad</strong>.</p>
-        <button class="btn-download" id="btnDownload">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Descargar Excel de Análisis
-        </button>
-        <div class="info-chips" id="infoChips"></div>
-      </div>
-    </div>
-  </main>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
-<script>
-// ── Theme ─────────────────────────────────────────────────────────────────────
-(function(){
-  const btn=document.querySelector('[data-theme-toggle]'),root=document.documentElement;
-  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
-  root.setAttribute('data-theme',d);
-  if(btn) btn.addEventListener('click',()=>{d=d==='dark'?'light':'dark';root.setAttribute('data-theme',d);});
-})();
-
-// ── State ─────────────────────────────────────────────────────────────────────
-let fileDataA=null,fileDataB=null,resultBlob=null,analysisResult=null,dimChartInstance=null;
-let tipoEncuesta=null; // 'madrid' | 'ciudades'
-
-// ── Tipo selector ─────────────────────────────────────────────────────────────
-function onTipoChange(){
-  const radios=document.querySelectorAll('input[name="tipo"]');
-  radios.forEach(r=>{
-    const card=r.closest('.tipo-card');
-    card.classList.toggle('selected',r.checked);
-    if(r.checked) tipoEncuesta=r.value;
-  });
-  document.getElementById('alertTipo').classList.remove('visible');
-  checkReady();
-}
-
-// ── Upload ────────────────────────────────────────────────────────────────────
-function setupUpload(dropId,inputId,nameId,iconId,cb){
-  const drop=document.getElementById(dropId),input=document.getElementById(inputId);
-  const nameEl=document.getElementById(nameId),iconEl=document.getElementById(iconId);
-  async function handle(file){
-    if(!file||!file.name.endsWith('.xlsx')){alert('Por favor sube un archivo .xlsx');return;}
-    const buf=await file.arrayBuffer();
-    drop.classList.add('loaded');
-    nameEl.textContent='✓ '+file.name; nameEl.style.display='block';
-    iconEl.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
-    cb(new Uint8Array(buf)); checkReady();
-  }
-  input.addEventListener('change',e=>{if(e.target.files[0])handle(e.target.files[0]);});
-  drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
-  drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
-  drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag-over');const f=e.dataTransfer?.files[0];if(f)handle(f);});
-}
-setupUpload('dropA','fileA','fileNameA','iconA',d=>fileDataA=d);
-setupUpload('dropB','fileB','fileNameB','iconB',d=>fileDataB=d);
-
-function checkReady(){
-  btnRun.disabled=!(fileDataA&&fileDataB&&tipoEncuesta);
-  if(fileDataA&&fileDataB&&tipoEncuesta) setStep(2);
-}
-
-function setStep(n){['step1chip','step2chip','step3chip'].forEach((id,i)=>{
-  const el=document.getElementById(id);el.classList.remove('active','done');
-  if(i+1<n)el.classList.add('done');else if(i+1===n)el.classList.add('active');
-});}
-
-function log(msg,pct,cls=''){
-  progressWrap.classList.add('visible');
-  if(pct!==undefined)progressBar.style.width=pct+'%';
-  const line=document.createElement('div');line.className='log-line'+(cls?' '+cls:'');line.textContent=msg;
-  progressLog.appendChild(line);progressLog.scrollTop=progressLog.scrollHeight;
-}
-
-const btnRun=document.getElementById('btnRun');
-const progressWrap=document.getElementById('progressWrap');
-const progressBar=document.getElementById('progressBar');
-const progressLog=document.getElementById('progressLog');
-const resultsEl=document.getElementById('results');
-const btnDownload=document.getElementById('btnDownload');
-
-// ── Parse xlsx ────────────────────────────────────────────────────────────────
-function parseXlsx(u8){
-  const wb=XLSX.read(u8,{type:'array'});
-  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:null});
-}
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-const CODIGOS=['MOT1','HER2','MOT3','MOT4','HER5','ENT6','ENT7','HER8','ENT9','PRE10','PRE11','PRE12'];
-const REORDER=['MOT1','MOT3','MOT4','HER2','HER5','HER8','ENT6','ENT7','ENT9','PRE10','PRE11','PRE12'];
-const DIMENSIONES={'MOTIVACION':['MOT1','MOT3','MOT4'],'HERRAMIENTAS':['HER2','HER5','HER8'],'ENTREVISTAS':['ENT6','ENT7','ENT9'],'PREPARACION LABORAL':['PRE10','PRE11','PRE12']};
-const MAP_RESP={'Siempre':4,'A menudo':3,'A veces':2,'Nunca':1};
-
-// ── Phone cleaner ─────────────────────────────────────────────────────────────
-function cleanPhone(val){
-  if(val===null||val===undefined) return{tel:null,err:'Valor vacío / nulo'};
-  let s=String(val).trim();
-  const orig=s;
-  s=s.replace(/[\s\+\.]/g,'');
-  if(!s) return{tel:null,err:'Valor vacío tras limpiar'};
-  if(/[a-zA-Z]/.test(s)) return{tel:null,err:`Contiene letras: "${orig}"`};
-  if(s.startsWith('34')&&s.length===11) s=s.slice(2);
-  if(/^\d{9}$/.test(s)) return{tel:parseInt(s),err:null};
-  return{tel:null,err:`Formato inválido (${s.length} dígitos): "${orig}"`};
-}
-
-function round2(v){return Math.round(v*10000)/10000;}
-function fmt(v){return v.toFixed(2);}
-
-// ── Core analysis ─────────────────────────────────────────────────────────────
-// tipo: 'madrid' → tel en col index 6 (0-based) = columna G
-//       'ciudades' → tel en col index 7 (0-based) = columna H, col G = Lugar de Residencia
-//
-// Las preguntas en PRE (texto) empiezan a continuación del teléfono (12 preguntas)
-// En POST (números) también 12 preguntas después del teléfono
-//
-// Madrid PRE: cols [6]=tel, [7..18]=preguntas
-// Ciudades PRE: cols [7]=tel, [8..19]=preguntas
-// Same offset logic for POST
-
-function processData(rawPre,rawPost,tipo){
-  const TEL_COL_NAME='Número de teléfono (sin espacios)';
-
-  // Detectar columnas por nombre (robusto)
-  const headersPre=Object.keys(rawPre[0]);
-  const headersPost=Object.keys(rawPost[0]);
-
-  // Encontrar índice del teléfono por nombre de columna
-  const telIdxPre=headersPre.indexOf(TEL_COL_NAME);
-  const telIdxPost=headersPost.indexOf(TEL_COL_NAME);
-
-  // Las 12 preguntas son las inmediatamente siguientes al teléfono
-  const qColsPre=headersPre.slice(telIdxPre+1,telIdxPre+13);
-  // Endesa POST tiene 1 pregunta extra (Sí/No sobre Fundación Endesa) justo después del teléfono
-  // Aplica tanto a 'endesa' (Madrid) como a 'endesa-ciudades'
-  const isEndesa = tipo==='endesa' || tipo==='endesa-ciudades';
-  const postOffset = isEndesa ? 2 : 1;
-  // Endesa Ciudades tiene solo 11 preguntas Likert en POST (la #12 es una abierta sobre talleres, no Likert)
-  const nQPost = tipo==='endesa-ciudades' ? 11 : 12;
-  const qColsPost=headersPost.slice(telIdxPost+postOffset,telIdxPost+postOffset+nQPost);
-
-  // Lugar de Residencia: en Ciudades (normal y Endesa) está en la col anterior al teléfono
-  const hasLugar = tipo==='ciudades' || tipo==='endesa-ciudades';
-  const lugarColPre= hasLugar ? headersPre[headersPre.indexOf(TEL_COL_NAME)-1] : null;
-  const lugarColPost= hasLugar ? headersPost[headersPost.indexOf(TEL_COL_NAME)-1] : null;
-
-  // PRE
-  const preInvalid=[];const preMap=new Map();const preDups=[];
-  for(const row of rawPre){
-    const{tel,err}=cleanPhone(row[TEL_COL_NAME]);
-    if(err){preInvalid.push({orig:row[TEL_COL_NAME],err});continue;}
-    if(preMap.has(tel)){preDups.push(tel);continue;}
-    const coded={};
-    qColsPre.forEach((col,i)=>{coded[CODIGOS[i]]=MAP_RESP[row[col]]??null;});
-    const lugar=lugarColPre?row[lugarColPre]:'Madrid';
-    preMap.set(tel,{tel,lugar,...coded});
-  }
-
-  // POST
-  const postInvalid=[];const postMap=new Map();const postDups=[];
-  for(const row of rawPost){
-    const{tel,err}=cleanPhone(row[TEL_COL_NAME]);
-    if(err){postInvalid.push({orig:row[TEL_COL_NAME],err});continue;}
-    if(postMap.has(tel)){postDups.push(tel);continue;}
-    const coded={};
-    qColsPost.forEach((col,i)=>{coded[CODIGOS[i]]=parseFloat(row[col])||null;});
-    const lugar=lugarColPost?row[lugarColPost]:'Madrid';
-    postMap.set(tel,{tel,lugar,...coded});
-  }
-
-  const tels=[...preMap.keys()].filter(t=>postMap.has(t)).sort((a,b)=>a-b);
-  const soloPreTels=[...preMap.keys()].filter(t=>!postMap.has(t)).sort((a,b)=>a-b);
-  const soloPostTels=[...postMap.keys()].filter(t=>!preMap.has(t)).sort((a,b)=>a-b);
-
-  const preMatched=tels.map(t=>preMap.get(t));
-  const postMatched=tels.map(t=>postMap.get(t));
-
-  // ── Endesa Ciudades: el POST no incluye la pregunta #12 ("derechos y obligaciones").
-  // Para mantener simetría en la comparación PRE↔POST (Opción A), se anula PRE12
-  // también en el PRE matcheado, así los promedios se calculan sobre los mismos 11 ítems.
-  // dimAvgs ya filtra null/NaN, no requiere cambios adicionales.
-  if(tipo==='endesa-ciudades'){
-    for(const r of preMatched) r['PRE12']=null;
-    // (En postMatched ya quedó null porque qColsPost solo trajo 11 columnas.)
-  }
-
-  function dimAvgs(rows){
-    return rows.map(r=>{
-      const a={};
-      for(const[dim,cols] of Object.entries(DIMENSIONES)){
-        const vs=cols.map(c=>r[c]).filter(v=>v!==null&&!isNaN(v));
-        a[dim]=vs.length?vs.reduce((x,y)=>x+y,0)/vs.length:null;
+  <script>
+    (function () {
+      const btn = document.querySelector('[data-theme-toggle]');
+      const root = document.documentElement;
+      let d = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', d);
+      if (btn) {
+        btn.addEventListener('click', () => {
+          d = d === 'dark' ? 'light' : 'dark';
+          root.setAttribute('data-theme', d);
+        });
       }
-      const all=CODIGOS.map(c=>r[c]).filter(v=>v!==null&&!isNaN(v));
-      a['GLOBAL']=all.length?all.reduce((x,y)=>x+y,0)/all.length:null;
-      return{tel:r.tel,lugar:r.lugar,...a};
-    });
-  }
-
-  const preAvgs=dimAvgs(preMatched);
-  const postAvgs=dimAvgs(postMatched);
-
-  const dims=[...Object.keys(DIMENSIONES),'GLOBAL'];
-  const analisis=dims.map(dim=>{
-    const pv=preAvgs.map(r=>r[dim]).filter(v=>v!==null);
-    const sv=postAvgs.map(r=>r[dim]).filter(v=>v!==null);
-    const avg=arr=>arr.reduce((a,b)=>a+b,0)/arr.length;
-    const p=avg(pv),s=avg(sv);
-    return{dim,pre:round2(p),post:round2(s),mejora:round2(s-p)};
-  });
-
-  const individ=preAvgs.map((pr,i)=>{
-    const ps=postAvgs[i];
-    const mg=ps['GLOBAL']-pr['GLOBAL'];
-    const cat=mg>=0.5?'Mejoría notable':mg>0?'Mejoría poco significante':'Sin mejoría';
-    return{tel:pr.tel,preGlobal:round2(pr['GLOBAL']),postGlobal:round2(ps['GLOBAL']),mejGlobal:round2(mg),cat};
-  });
-
-  const classCounts={};for(const r of individ)classCounts[r.cat]=(classCounts[r.cat]||0)+1;
-
-  const traz={
-    pre:{total:rawPre.length,invalid:preInvalid,dups:preDups,valid:preMap.size},
-    post:{total:rawPost.length,invalid:postInvalid,dups:postDups,valid:postMap.size},
-    cruzados:tels,soloPre:soloPreTels,soloPost:soloPostTels,
-    telColPre:TEL_COL_NAME,telColPost:TEL_COL_NAME,
-    lugarColPre,lugarColPost,
-  };
-
-  return{preMatched,postMatched,preAvgs,postAvgs,analisis,individ,classCounts,
-    nPre:preMap.size,nPost:postMap.size,nCruces:tels.length,traz};
-}
-
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function switchTab(e,id){
-  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  e.target.classList.add('active');
-}
-
-function fillTable(tableId,rows){
-  const tbody=document.querySelector('#'+tableId+' tbody');
-  tbody.innerHTML='';
-  if(!rows.length){
-    const tr=document.createElement('tr');
-    const td=document.createElement('td');td.colSpan=3;td.style.textAlign='center';td.style.color='var(--color-text-muted)';td.textContent='Sin registros';
-    tr.appendChild(td);tbody.appendChild(tr);return;
-  }
-  rows.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=r;tbody.appendChild(tr);});
-}
-
-// ── Render ────────────────────────────────────────────────────────────────────
-const DIM_META={'MOTIVACION':{cls:'mot',label:'Motivación'},'HERRAMIENTAS':{cls:'her',label:'Herramientas'},'ENTREVISTAS':{cls:'ent',label:'Entrevistas'},'PREPARACION LABORAL':{cls:'pre',label:'Preparación'},'GLOBAL':{cls:'global',label:'Índice Global Empleabilidad'}};
-
-function renderResults(res,tipo){
-  const badgeHtml=tipo==='ciudades'
-    ?'<span class="tipo-badge tipo-badge-ciudades">🗺️ Otras Ciudades</span>'
-    :tipo==='endesa'
-    ?'<span class="tipo-badge tipo-badge-endesa">⚡ Endesa Madrid</span>'
-    :tipo==='endesa-ciudades'
-    ?'<span class="tipo-badge tipo-badge-endesa-ciudades">⚡🗺️ Endesa Ciudades</span>'
-    :'<span class="tipo-badge tipo-badge-madrid">🏙️ Madrid</span>';
-
-  document.getElementById('metaInfo').innerHTML=`
-    ${badgeHtml}
-    <span>📋 PRE válidos: <strong>${res.nPre}</strong></span>
-    <span>📋 POST válidos: <strong>${res.nPost}</strong></span>
-    <span>🔗 Cruzados: <strong>${res.nCruces}</strong></span>
-  `;
-
-  const grid=document.getElementById('kpiGrid');grid.innerHTML='';
-  res.analisis.forEach(a=>{
-    const m=DIM_META[a.dim]||{cls:'pre',label:a.dim};
-    grid.innerHTML+=`<div class="kpi-card kpi-${m.cls}">
-      <div class="kpi-label">${m.label}</div>
-      <div class="kpi-vals"><span class="kpi-pre-val">${fmt(a.pre)}</span><span class="kpi-arrow">→</span><span class="kpi-post-val">${fmt(a.post)}</span></div>
-      <div class="kpi-mejora">▲ +${fmt(a.mejora)} puntos</div></div>`;
-  });
-
-  if(dimChartInstance)dimChartInstance.destroy();
-  const ctx=document.getElementById('dimChart').getContext('2d');
-  const dimsAll=res.analisis.map(a=>({...a,label:a.dim==='GLOBAL'?'Índice Global\nEmpleabilidad':(DIM_META[a.dim]?.label||a.dim)}));
-  const dk=document.documentElement.getAttribute('data-theme')==='dark';
-  dimChartInstance=new Chart(ctx,{type:'bar',data:{
-    labels:dimsAll.map(a=>a.label),
-    datasets:[
-      {label:'PRE',data:dimsAll.map(a=>a.pre),backgroundColor:'rgba(79,152,163,.45)',borderColor:'#4f98a3',borderWidth:2,borderRadius:4},
-      {label:'POST',data:dimsAll.map(a=>a.post),backgroundColor:'rgba(1,105,111,.7)',borderColor:'#01696f',borderWidth:2,borderRadius:4},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{color:dk?'#cdccca':'#28251d',font:{family:'Inter',size:12}}},
-               tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y.toFixed(2)}`}}},
-      scales:{y:{min:0,max:4,ticks:{color:dk?'#797876':'#7a7974',stepSize:.5},grid:{color:dk?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)'}},
-              x:{ticks:{color:dk?'#797876':'#7a7974'},grid:{display:false}}}}
-  });
-
-  document.getElementById('mejoraRow').innerHTML=`
-    <div class="mejora-badge mb-notable"><div class="count">${res.classCounts['Mejoría notable']||0}</div><div class="label">Mejoría notable</div></div>
-    <div class="mejora-badge mb-poco"><div class="count">${res.classCounts['Mejoría poco significante']||0}</div><div class="label">Poco significante</div></div>
-    <div class="mejora-badge mb-sin"><div class="count">${res.classCounts['Sin mejoría']||0}</div><div class="label">Sin mejoría</div></div>
-  `;
-
-  // Trazabilidad
-  const t=res.traz;
-  const usaColH = tipo==='ciudades' || tipo==='endesa-ciudades';
-  const colTelTxt = usaColH ? 'H (col 8)' : 'G (col 7)';
-  const tipoTxt = tipo==='ciudades'?'Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid';
-  document.getElementById('trazSummary').innerHTML=`
-    <div class="traz-box traz-pre">
-      <div class="traz-box-title">📋 Encuesta PRE</div>
-      <div class="traz-row"><span class="lbl">Filas totales leídas</span><span class="val">${t.pre.total}</span></div>
-      <div class="traz-row"><span class="lbl">Inválidos / sin teléfono</span><span class="val ${t.pre.invalid.length?'warn':'ok'}">${t.pre.invalid.length}</span></div>
-      <div class="traz-row"><span class="lbl">Duplicados eliminados</span><span class="val ${t.pre.dups.length?'warn':'ok'}">${t.pre.dups.length}</span></div>
-      <div class="traz-row"><span class="lbl">Registros válidos únicos</span><span class="val ok">${t.pre.valid}</span></div>
-      <div class="traz-row"><span class="lbl">Solo en PRE (sin POST)</span><span class="val warn">${t.soloPre.length}</span></div>
-      <div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">${colTelTxt}</span></div>
-    </div>
-    <div class="traz-box traz-post">
-      <div class="traz-box-title">📋 Encuesta POST</div>
-      <div class="traz-row"><span class="lbl">Filas totales leídas</span><span class="val">${t.post.total}</span></div>
-      <div class="traz-row"><span class="lbl">Inválidos / sin teléfono</span><span class="val ${t.post.invalid.length?'warn':'ok'}">${t.post.invalid.length}</span></div>
-      <div class="traz-row"><span class="lbl">Duplicados eliminados</span><span class="val ${t.post.dups.length?'warn':'ok'}">${t.post.dups.length}</span></div>
-      <div class="traz-row"><span class="lbl">Registros válidos únicos</span><span class="val ok">${t.post.valid}</span></div>
-      <div class="traz-row"><span class="lbl">Solo en POST (sin PRE)</span><span class="val warn">${t.soloPost.length}</span></div>
-      <div class="traz-row"><span class="lbl">Col. teléfono</span><span class="val">${colTelTxt}</span></div>
-      ${tipo==='endesa'||tipo==='endesa-ciudades'?`<div class="traz-row"><span class="lbl">Nota</span><span class="val">Col. pregunta Endesa omitida</span></div>`:''}
-      ${tipo==='endesa-ciudades'?`<div class="traz-row"><span class="lbl">Nota</span><span class="val">Solo 11 preguntas Likert (sin PRE12)</span></div>`:''}
-    </div>
-    <div class="traz-box traz-cruce">
-      <div class="traz-box-title">🔗 Cruce final</div>
-      <div class="traz-row"><span class="lbl">Participantes cruzados</span><span class="val ok">${t.cruzados.length}</span></div>
-      <div class="traz-row"><span class="lbl">% cobertura sobre PRE</span><span class="val ok">${((t.cruzados.length/Math.max(t.pre.valid,1))*100).toFixed(1)}%</span></div>
-      <div class="traz-row"><span class="lbl">% cobertura sobre POST</span><span class="val ok">${((t.cruzados.length/Math.max(t.post.valid,1))*100).toFixed(1)}%</span></div>
-      <div class="traz-row"><span class="lbl">No cruzados total</span><span class="val ${(t.soloPre.length+t.soloPost.length)?'warn':'ok'}">${t.soloPre.length+t.soloPost.length}</span></div>
-      <div class="traz-row"><span class="lbl">Tipo encuesta</span><span class="val">${tipoTxt}</span></div>
-    </div>
-  `;
-
-  fillTable('tbl-pre-invalidos',t.pre.invalid.map((r,i)=>`<td>${i+1}</td><td>${r.orig??'(vacío)'}</td><td><span class="tag tag-err">${r.err}</span></td>`));
-  fillTable('tbl-post-invalidos',t.post.invalid.map((r,i)=>`<td>${i+1}</td><td>${r.orig??'(vacío)'}</td><td><span class="tag tag-err">${r.err}</span></td>`));
-  fillTable('tbl-solo-pre',t.soloPre.map((tel,i)=>`<td>${i+1}</td><td>${tel}</td><td><span class="tag tag-warn">Solo en PRE</span></td>`));
-  fillTable('tbl-solo-post',t.soloPost.map((tel,i)=>`<td>${i+1}</td><td>${tel}</td><td><span class="tag tag-warn">Solo en POST</span></td>`));
-  fillTable('tbl-cruzados',t.cruzados.map((tel,i)=>`<td>${i+1}</td><td>${tel}</td><td><span class="tag tag-ok">Cruzado ✓</span></td>`));
-
-  const gl=res.analisis.find(a=>a.dim==='GLOBAL');
-  document.getElementById('infoChips').innerHTML=`
-    <span class="info-chip">Global PRE: ${fmt(gl.pre)}</span>
-    <span class="info-chip">Global POST: ${fmt(gl.post)}</span>
-    <span class="info-chip">Mejora: +${fmt(gl.mejora)}</span>
-    <span class="info-chip">${tipo==='ciudades'?'🗺️ Ciudades':tipo==='endesa'?'⚡ Endesa Madrid':tipo==='endesa-ciudades'?'⚡🗺️ Endesa Ciudades':'🏙️ Madrid'}</span>
-  `;
-}
-
-// ── Build Excel ───────────────────────────────────────────────────────────────
-async function buildExcel(res,tipo){
-  const wb=new ExcelJS.Workbook();
-  wb.creator='Analizador PRE-POST 2026'; wb.created=new Date();
-
-  const TEAL='01696F',WHITE='FFFFFF';
-  const DIM_HDR={'MOTIVACION':'0E7B82','HERRAMIENTAS':'2E7D32','ENTREVISTAS':'E65100','PREPARACION LABORAL':'6A1B9A','GLOBAL':'37474F'};
-  const COL_FILLS={'MOT1':'E0F4F5','MOT3':'E0F4F5','MOT4':'E0F4F5','HER2':'E8F5E9','HER5':'E8F5E9','HER8':'E8F5E9','ENT6':'FFF3E0','ENT7':'FFF3E0','ENT9':'FFF3E0','PRE10':'F3E5F5','PRE11':'F3E5F5','PRE12':'F3E5F5'};
-  const hdrFill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+TEAL}};
-  const hdrFont={bold:true,color:{argb:'FF'+WHITE},size:10};
-  const ctrAlign={horizontal:'center',vertical:'middle'};
-  const thin=(c='CCCCCC')=>({style:'thin',color:{argb:'FF'+c}});
-  const brd=()=>{const t=thin();return{top:t,left:t,bottom:t,right:t};};
-  const fill=hex=>({type:'pattern',pattern:'solid',fgColor:{argb:'FF'+hex}});
-
-  const ALL_COLS=['ID',...REORDER,'GLOBAL'];
-  const dimGroups=[
-    {label:'ID',c1:1,c2:1,dim:null},
-    {label:'DIMENSIÓN MOTIVACIÓN',c1:2,c2:4,dim:'MOTIVACION'},
-    {label:'DIMENSIÓN HERRAMIENTAS',c1:5,c2:7,dim:'HERRAMIENTAS'},
-    {label:'DIMENSIÓN ENTREVISTAS',c1:8,c2:10,dim:'ENTREVISTAS'},
-    {label:'DIMENSIÓN PREPARACIÓN',c1:11,c2:13,dim:'PREPARACION LABORAL'},
-    {label:'GLOBAL',c1:14,c2:14,dim:'GLOBAL'},
-  ];
-
-  function writeDataSheet(ws,rowsData){
-    ws.getRow(1).height=22; ws.getRow(2).height=28;
-    for(const g of dimGroups){
-      if(g.c1!==g.c2)ws.mergeCells(1,g.c1,1,g.c2);
-      const cell=ws.getCell(1,g.c1); cell.value=g.label;
-      cell.fill=fill(g.dim?DIM_HDR[g.dim]:TEAL); cell.font=hdrFont; cell.alignment=ctrAlign; cell.border=brd();
-    }
-    ALL_COLS.forEach((col,i)=>{const c=ws.getCell(2,i+1);c.value=col;c.fill=hdrFill;c.font=hdrFont;c.alignment=ctrAlign;c.border=brd();});
-    rowsData.forEach((row,ri)=>{
-      const r=ri+3;
-      ALL_COLS.forEach((col,ci)=>{
-        const cell=ws.getCell(r,ci+1); cell.value=row[col]??''; cell.border=brd(); cell.alignment=ctrAlign;
-        const hex=COL_FILLS[col]; if(hex)cell.fill=fill(hex); if(ci>0)cell.numFmt='0.00';
-      });
-    });
-    ws.getColumn(1).width=15; for(let c=2;c<=14;c++)ws.getColumn(c).width=9;
-  }
-
-  function buildRows(matched){
-    return matched.map(r=>{
-      const out={ID:r.tel};
-      REORDER.forEach(c=>{out[c]=r[c]??'';});
-      out['GLOBAL']=round2(REORDER.map(c=>r[c]).filter(v=>v).reduce((a,b)=>a+b,0)/12);
-      return out;
-    });
-  }
-
-  const preRows=buildRows(res.preMatched);
-  const postRows=buildRows(res.postMatched);
-  writeDataSheet(wb.addWorksheet('PRE',{tabColor:{argb:'FF0E7B82'}}),preRows);
-  writeDataSheet(wb.addWorksheet('POST',{tabColor:{argb:'FF6A1B9A'}}),postRows);
-
-  function writePromedios(ws,rows){
-    ws.getRow(1).height=22; ws.getRow(2).height=28;
-    for(const g of dimGroups){
-      if(g.c1!==g.c2)ws.mergeCells(1,g.c1,1,g.c2);
-      const cell=ws.getCell(1,g.c1); cell.value=g.label;
-      cell.fill=fill(g.dim?DIM_HDR[g.dim]:TEAL); cell.font=hdrFont; cell.alignment=ctrAlign; cell.border=brd();
-    }
-    ALL_COLS.forEach((col,i)=>{const c=ws.getCell(2,i+1);c.value=col;c.fill=hdrFill;c.font=hdrFont;c.alignment=ctrAlign;c.border=brd();});
-    rows.forEach((row,ri)=>{
-      const r=ri+3;
-      ALL_COLS.forEach((col,ci)=>{
-        const cell=ws.getCell(r,ci+1); cell.value=row[col]??''; cell.border=brd(); cell.alignment=ctrAlign;
-        const hex=COL_FILLS[col]; if(hex)cell.fill=fill(hex); if(ci>0)cell.numFmt='0.0000';
-      });
-    });
-    const tr=rows.length+3;
-    ws.getCell(tr,1).value='Total general'; ws.getCell(tr,1).font={bold:true}; ws.getCell(tr,1).border=brd();
-    for(let ci=2;ci<=14;ci++){
-      const col=String.fromCharCode(64+ci); const cell=ws.getCell(tr,ci);
-      cell.value={formula:`AVERAGE(${col}3:${col}${rows.length+2})`}; cell.numFmt='0.0000';
-      cell.font={bold:true}; cell.fill=fill('E0E0E0'); cell.border=brd(); cell.alignment=ctrAlign;
-    }
-    ws.getColumn(1).width=15; for(let c=2;c<=14;c++)ws.getColumn(c).width=10;
-  }
-  writePromedios(wb.addWorksheet('Promedios PRE',{tabColor:{argb:'FF0E7B82'}}),preRows);
-  writePromedios(wb.addWorksheet('Promedios POST',{tabColor:{argb:'FF6A1B9A'}}),postRows);
-
-  // Análisis
-  const wsAn=wb.addWorksheet('ANALISIS',{tabColor:{argb:'FF37474F'}});
-  wsAn.getRow(1).height=24;
-  ['DIMENSIÓN','PRE','POST','','','','','MEJORA',''].forEach((h,i)=>{const c=wsAn.getCell(1,i+1);c.value=h;c.fill=hdrFill;c.font=hdrFont;c.alignment=ctrAlign;c.border=brd();});
-  const AC={'MOTIVACION':'C8E6E7','HERRAMIENTAS':'C8E6C9','ENTREVISTAS':'FFE0B2','PREPARACION LABORAL':'E1BEE7','GLOBAL':'CFD8DC'};
-  res.analisis.forEach((a,i)=>{
-    const r=i+2,f=fill(AC[a.dim]||'EEE');
-    [[1,a.dim],[2,a.pre],[3,a.post],[8,a.dim],[9,a.mejora]].forEach(([c,v])=>{
-      const cell=wsAn.getCell(r,c); cell.value=v; cell.fill=f; cell.border=brd(); cell.alignment=ctrAlign;
-      if(typeof v==='number')cell.numFmt='0.0000';
-      if(c===1||c===8){cell.font={bold:true};cell.alignment={horizontal:'left',vertical:'middle'};}
-    });
-    for(let c=4;c<=7;c++)wsAn.getCell(r,c).border=brd();
-  });
-  wsAn.getColumn(1).width=26; wsAn.getColumn(2).width=13; wsAn.getColumn(3).width=13; wsAn.getColumn(8).width=26; wsAn.getColumn(9).width=13;
-
-  // Análisis individual
-  const wsInd=wb.addWorksheet('ANALISIS INDIVIDUAL',{tabColor:{argb:'FF964219'}});
-  const iCols=['Nº','Teléfono','PRE-MOT','PRE-HERR','PRE-ENT','PRE-PREP','PRE-GLOBAL','POST-MOT','POST-HERR','POST-ENT','POST-PREP','POST-GLOBAL','MEJ-MOT','MEJ-HERR','MEJ-ENT','MEJ-PREP','MEJ-GLOBAL','Clasificación'];
-  wsInd.getRow(1).height=24;
-  iCols.forEach((h,i)=>{const c=wsInd.getCell(1,i+1);c.value=h;c.fill=hdrFill;c.font=hdrFont;c.alignment=ctrAlign;c.border=brd();});
-  const CATF={'Mejoría notable':'C8E6C9','Mejoría poco significante':'FFF9C4','Sin mejoría':'FFCDD2'};
-  const d4=['MOTIVACION','HERRAMIENTAS','ENTREVISTAS','PREPARACION LABORAL'];
-  res.preAvgs.forEach((pr,i)=>{
-    const ps=res.postAvgs[i]; const r=i+2;
-    const vals=[i+1,pr.tel,...d4.map(d=>round2(pr[d])),round2(pr['GLOBAL']),...d4.map(d=>round2(ps[d])),round2(ps['GLOBAL']),...d4.map(d=>round2(ps[d]-pr[d])),round2(ps['GLOBAL']-pr['GLOBAL']),res.individ[i].cat];
-    vals.forEach((v,ci)=>{
-      const cell=wsInd.getCell(r,ci+1); cell.value=v; cell.border=brd(); cell.alignment=ctrAlign;
-      if(typeof v==='number'&&ci>1)cell.numFmt='0.00';
-      if(ci===vals.length-1){cell.fill=fill(CATF[v]||'FFF');cell.font={bold:true};}
-    });
-  });
-  for(let c=1;c<=iCols.length;c++)wsInd.getColumn(c).width=c<=2?13:c===iCols.length?26:14;
-
-  // TRAZABILIDAD
-  const wsTraz=wb.addWorksheet('TRAZABILIDAD',{tabColor:{argb:'FFFF6F00'}});
-  const t=res.traz;
-  wsTraz.getRow(1).height=28;
-  wsTraz.mergeCells('A1:F1');
-  const titCell=wsTraz.getCell('A1');
-  titCell.value=`TRAZABILIDAD — Tipo: ${tipo==='ciudades'?'Otras Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid'} | ${new Date().toLocaleDateString('es-ES')}`;
-  titCell.font={bold:true,size:13,color:{argb:'FF'+TEAL}}; titCell.alignment={horizontal:'left',vertical:'middle',indent:1};
-
-  let row=3;
-  const colTel = (tipo==='ciudades' || tipo==='endesa-ciudades') ? 'H (col 8)' : 'G (col 7)';
-  const tipoExcel = tipo==='ciudades'?'Otras Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid';
-  const summaryData=[
-    ['','PRE','POST','CRUCE','',''],
-    ['Filas totales leídas',t.pre.total,t.post.total,'','',''],
-    ['Inválidos / sin teléfono',t.pre.invalid.length,t.post.invalid.length,'','',''],
-    ['Duplicados eliminados',t.pre.dups.length,t.post.dups.length,'','',''],
-    ['Válidos únicos',t.pre.valid,t.post.valid,'','',''],
-    ['Solo en este archivo',t.soloPre.length,t.soloPost.length,'','',''],
-    ['Participantes cruzados','','',t.cruzados.length,'',''],
-    ['% cobertura PRE','','',((t.cruzados.length/Math.max(t.pre.valid,1))*100).toFixed(1)+'%','',''],
-    ['Columna teléfono usado',colTel,colTel,'','',''],
-    ...((tipo==='endesa'||tipo==='endesa-ciudades')?[['POST: col. pregunta Endesa','Omitida (Sí/No)','','','','']]:[]),
-    ...(tipo==='endesa-ciudades'?[['POST: solo 11 preguntas Likert','PRE12 anulado en ambos lados (simetría)','','','','']]:[])];
-  summaryData.forEach((r2,ri)=>{
-    r2.forEach((v,ci)=>{
-      const cell=wsTraz.getCell(row+ri,ci+1); cell.value=v; cell.border=brd(); cell.alignment=ctrAlign;
-      if(ri===0){cell.fill=hdrFill;cell.font=hdrFont;}
-      else{if(ci===0){cell.alignment={horizontal:'left',vertical:'middle',indent:1};cell.font={bold:true};}
-           if(ci===1)cell.fill=fill('E0F4F5');
-           if(ci===2)cell.fill=fill('F3E5F5');
-           if(ci===3)cell.fill=fill('E8F5E9');}
-    });
-  });
-  row+=summaryData.length+2;
-
-  function writeSection(ws,startRow,title,color,headers,dataRows){
-    ws.mergeCells(startRow,1,startRow,Math.max(headers.length,4));
-    const tCell=ws.getCell(startRow,1);
-    tCell.value=title; tCell.fill=fill(color); tCell.font={bold:true,size:11}; tCell.alignment={horizontal:'left',vertical:'middle',indent:1};
-    ws.getRow(startRow).height=22;
-    headers.forEach((h,i)=>{const c=ws.getCell(startRow+1,i+1);c.value=h;c.fill=hdrFill;c.font=hdrFont;c.alignment=ctrAlign;c.border=brd();});
-    if(!dataRows.length){
-      ws.mergeCells(startRow+2,1,startRow+2,headers.length);
-      const nc=ws.getCell(startRow+2,1); nc.value='Sin registros'; nc.alignment={horizontal:'center'}; nc.font={italic:true,color:{argb:'FF999999'}};
-      return startRow+4;
-    }
-    dataRows.forEach((dr,i)=>{
-      dr.forEach((v,ci)=>{const c=ws.getCell(startRow+2+i,ci+1);c.value=v;c.border=brd();c.alignment=ci===0?{horizontal:'center'}:{horizontal:'left',indent:1};});
-    });
-    return startRow+2+dataRows.length+2;
-  }
-
-  row=writeSection(wsTraz,row,'⚠ PRE — Registros inválidos/eliminados','FFE0B2',['#','Valor original teléfono','Motivo / Error','Tipo'],
-    t.pre.invalid.map((r2,i)=>[i+1,String(r2.orig??'(vacío)'),r2.err,'Inválido']));
-  row=writeSection(wsTraz,row,'⚠ POST — Registros inválidos/eliminados','E1BEE7',['#','Valor original teléfono','Motivo / Error','Tipo'],
-    t.post.invalid.map((r2,i)=>[i+1,String(r2.orig??'(vacío)'),r2.err,'Inválido']));
-  row=writeSection(wsTraz,row,'📋 Teléfonos SOLO en PRE (no tienen POST)','FFF3E0',['#','Teléfono','Estado'],
-    t.soloPre.map((tel,i)=>[i+1,tel,'Solo en PRE — sin cruce']));
-  row=writeSection(wsTraz,row,'📋 Teléfonos SOLO en POST (no tienen PRE)','F3E5F5',['#','Teléfono','Estado'],
-    t.soloPost.map((tel,i)=>[i+1,tel,'Solo en POST — sin cruce']));
-  row=writeSection(wsTraz,row,'✓ Teléfonos cruzados correctamente (PRE+POST)','C8E6C9',['#','Teléfono','Estado'],
-    t.cruzados.map((tel,i)=>[i+1,tel,'Cruzado ✓']));
-
-  row+=1;
-  wsTraz.getCell(row,1).value=`Generado: ${new Date().toLocaleString('es-ES')} | Tipo: ${tipo==='ciudades'?'Otras Ciudades':tipo==='endesa'?'Endesa Madrid':tipo==='endesa-ciudades'?'Endesa Ciudades':'Madrid'} | Escuela de Fortalecimiento 2026`;
-  wsTraz.getCell(row,1).font={italic:true,size:9,color:{argb:'FF999999'}};
-  [18,30,45,20].forEach((w,i)=>wsTraz.getColumn(i+1).width=w);
-
-  const buf=await wb.xlsx.writeBuffer();
-  return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-}
-
-// ── Run ───────────────────────────────────────────────────────────────────────
-btnRun.addEventListener('click',async()=>{
-  if(!tipoEncuesta){document.getElementById('alertTipo').classList.add('visible');return;}
-  btnRun.disabled=true; progressLog.innerHTML=''; progressBar.style.width='0%';
-  resultsEl.classList.remove('visible');
-  try{
-    const tipoLabel=tipoEncuesta==='ciudades'?'Otras Ciudades (tel. col H)':tipoEncuesta==='endesa'?'Endesa Madrid (tel. col G, +1 col extra en POST)':tipoEncuesta==='endesa-ciudades'?'Endesa Ciudades (tel. col H, +1 col extra en POST, 11 preguntas Likert)':'Madrid (tel. col G)';
-    log(`📋 Modo: ${tipoLabel}`,5);
-    log('📂 Leyendo archivo PRE...',10);
-    const rawPre=parseXlsx(fileDataA);
-    log(`   ${rawPre.length} filas encontradas en PRE`,20);
-    log('📂 Leyendo archivo POST...',25);
-    const rawPost=parseXlsx(fileDataB);
-    log(`   ${rawPost.length} filas encontradas en POST`,35);
-    log('🧹 Limpiando teléfonos y eliminando duplicados...',45);
-    const res=processData(rawPre,rawPost,tipoEncuesta);
-    if(res.traz.pre.invalid.length) log(`   ⚠ PRE: ${res.traz.pre.invalid.length} inválidos, ${res.traz.pre.dups.length} duplicados`,50,'warn');
-    if(res.traz.post.invalid.length) log(`   ⚠ POST: ${res.traz.post.invalid.length} inválidos, ${res.traz.post.dups.length} duplicados`,52,'warn');
-    log(`✅ Cruce: ${res.nCruces} participantes en ambas encuestas`,60,'ok');
-    if(res.traz.soloPre.length) log(`   ℹ ${res.traz.soloPre.length} teléfonos solo en PRE (sin POST)`,63,'warn');
-    if(res.traz.soloPost.length) log(`   ℹ ${res.traz.soloPost.length} teléfonos solo en POST (sin PRE)`,65,'warn');
-    log('📊 Calculando promedios por dimensión...',72);
-    await new Promise(r=>setTimeout(r,80));
-    log('📝 Generando Excel con 7 hojas (incluye Trazabilidad)...',82);
-    resultBlob=await buildExcel(res,tipoEncuesta); analysisResult=res;
-    log('✅ Excel generado correctamente',98,'ok');
-    log('🎉 ¡Análisis completado!',100,'ok');
-    renderResults(res,tipoEncuesta); resultsEl.classList.add('visible'); setStep(3);
-  }catch(e){log('❌ Error: '+e.message,100,'err');console.error(e);}
-  finally{btnRun.disabled=false;}
-});
-
-btnDownload.addEventListener('click',()=>{
-  if(!resultBlob)return;
-  const d=new Date(); const tipo=tipoEncuesta==='ciudades'?'Ciudades':tipoEncuesta==='endesa'?'Endesa-Madrid':tipoEncuesta==='endesa-ciudades'?'Endesa-Ciudades':'Madrid';
-  const a=document.createElement('a'); a.href=URL.createObjectURL(resultBlob);
-  a.download=`Analisis-PRE-POST-${tipo}-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`;
-  a.click(); URL.revokeObjectURL(a.href);
-});
-</script>
+    })();
+  </script>
 </body>
 </html>

@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analizador Integra-Te · 3 momentos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#ffffff;
+  --color-surface-offset:#f0eeea;--color-border:#d4d1ca;--color-divider:#e2dfda;
+  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#b0aea9;
+  --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-light:#e0f0f0;
+  --color-success:#437a22;--color-success-bg:#f0f7ea;
+  --color-warning:#964219;--color-warning-bg:#fef4ed;
+  --color-error:#a12c7b;--color-error-bg:#fdf0f8;
+  /* Colores corporativos Fundación Integra */
+  --color-pre-corp:#479589;--color-pre-corp-bg:#e8f2f0;
+  --color-post-corp:#B0162D;--color-post-corp-bg:#fae5e9;
+  --color-mes-corp:#F6B221;--color-mes-corp-bg:#fdf3dc;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);
+  --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-xl:1rem;
+  --font-body:'Inter',system-ui,sans-serif;--font-mono:'DM Mono',monospace;
+  --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);
+  --text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+  --text-base:clamp(1rem,.95rem + .25vw,1.125rem);
+  --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+  --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2rem);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;
+  --transition:180ms cubic-bezier(.16,1,.3,1);
+}
+[data-theme="dark"]{
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#222120;
+  --color-surface-offset:#1d1c1a;--color-border:#393836;--color-divider:#262523;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-light:#1e3a3c;
+  --color-success:#6daa45;--color-success-bg:#1e2d18;
+  --color-warning:#bb653b;--color-warning-bg:#2d1f16;
+  --color-error:#d163a7;--color-error-bg:#2a1424;
+  --color-pre-corp:#5fb2a4;--color-pre-corp-bg:#1a302c;
+  --color-post-corp:#d44d62;--color-post-corp-bg:#3a1a20;
+  --color-mes-corp:#f6c245;--color-mes-corp-bg:#332512;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.25);--shadow-md:0 4px 16px rgba(0,0,0,.35);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);min-height:100dvh;line-height:1.6}
+a,button,[role="button"],input,select{transition:color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition);font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+img{display:block;max-width:100%}
+.app{display:grid;grid-template-rows:auto 1fr;min-height:100dvh}
+.topbar{background:var(--color-surface);border-bottom:1px solid var(--color-border);
+  padding:var(--space-3) var(--space-6);display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm)}
+.logo{display:flex;align-items:center;gap:var(--space-3)}
+.logo svg{color:var(--color-primary);flex-shrink:0}
+.logo-text{display:flex;flex-direction:column;line-height:1.2}
+.logo-title{font-size:var(--text-sm);font-weight:700}
+.logo-sub{font-size:var(--text-xs);color:var(--color-text-muted)}
+.topbar-actions{display:flex;align-items:center;gap:var(--space-3)}
+.nav-tabs{display:flex;gap:2px;background:var(--color-surface-offset);border-radius:var(--radius-md);padding:3px}
+.nav-tab{font-size:var(--text-xs);font-weight:600;padding:var(--space-2) var(--space-4);border-radius:calc(var(--radius-md) - 2px);color:var(--color-text-muted);text-decoration:none}
+.nav-tab.active{background:var(--color-surface-2);color:var(--color-text);box-shadow:var(--shadow-sm)}
+.nav-tab:hover:not(.active){color:var(--color-text)}
+.theme-btn{width:36px;height:36px;border-radius:var(--radius-md);display:grid;place-items:center;
+  color:var(--color-text-muted);border:1px solid var(--color-border)}
+.theme-btn:hover{background:var(--color-surface-offset);color:var(--color-text)}
+.main{padding:var(--space-8) var(--space-6);max-width:1100px;margin-inline:auto;width:100%}
+
+/* steps */
+.steps-header{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8)}
+.step-chip{display:inline-flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted)}
+.step-chip .num{width:22px;height:22px;border-radius:50%;background:var(--color-surface-offset);border:1px solid var(--color-border);display:grid;place-items:center;font-size:.65rem;font-weight:700;color:var(--color-text-muted)}
+.step-chip.active .num{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
+.step-chip.active{color:var(--color-primary)}
+.step-chip.done .num{background:var(--color-success);border-color:var(--color-success);color:#fff}
+.step-sep{height:1px;flex:1;background:var(--color-divider)}
+
+/* intro card */
+.intro-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-5) var(--space-6);margin-bottom:var(--space-6);display:flex;gap:var(--space-4);align-items:flex-start;box-shadow:var(--shadow-sm)}
+.intro-icon{width:42px;height:42px;border-radius:var(--radius-lg);background:var(--color-primary-light);color:var(--color-primary);display:grid;place-items:center;flex-shrink:0}
+.intro-text h2{font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-1)}
+.intro-text p{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5}
+
+/* upload */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-6)}
+@media(max-width:800px){.upload-grid{grid-template-columns:1fr}}
+.upload-card{border:2px dashed var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6) var(--space-4);text-align:center;cursor:pointer;position:relative;background:var(--color-surface);transition:border-color var(--transition),background var(--transition)}
+.upload-card:hover,.upload-card.drag-over{border-color:var(--color-primary);background:var(--color-primary-light)}
+.upload-card.loaded{border-style:solid}
+.upload-card[data-momento="pre"].loaded{border-color:var(--color-pre-corp);background:var(--color-pre-corp-bg)}
+.upload-card[data-momento="post"].loaded{border-color:var(--color-post-corp);background:var(--color-post-corp-bg)}
+.upload-card[data-momento="mes"].loaded{border-color:var(--color-mes-corp);background:var(--color-mes-corp-bg)}
+.upload-card input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{width:44px;height:44px;border-radius:var(--radius-lg);background:var(--color-surface-offset);display:grid;place-items:center;margin-inline:auto;margin-bottom:var(--space-3);color:var(--color-primary)}
+.upload-card[data-momento="pre"].loaded .upload-icon{background:var(--color-pre-corp);color:#fff}
+.upload-card[data-momento="post"].loaded .upload-icon{background:var(--color-post-corp);color:#fff}
+.upload-card[data-momento="mes"].loaded .upload-icon{background:var(--color-mes-corp);color:#fff}
+.upload-label{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-1)}
+.upload-hint{font-size:var(--text-xs);color:var(--color-text-muted)}
+.upload-filename{font-size:var(--text-xs);font-family:var(--font-mono);margin-top:var(--space-2);font-weight:500}
+.upload-card[data-momento="pre"].loaded .upload-filename{color:var(--color-pre-corp)}
+.upload-card[data-momento="post"].loaded .upload-filename{color:var(--color-post-corp)}
+.upload-card[data-momento="mes"].loaded .upload-filename{color:var(--color-mes-corp)}
+.badge-momento{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:var(--radius-xl);margin-bottom:var(--space-3);color:#fff}
+.badge-pre{background:var(--color-pre-corp)}
+.badge-post{background:var(--color-post-corp)}
+.badge-mes{background:var(--color-mes-corp);color:#28251d}
+
+/* run */
+.run-section{display:flex;justify-content:center;margin-bottom:var(--space-8)}
+.btn-run{background:var(--color-primary);color:#fff;padding:var(--space-3) var(--space-10);border-radius:var(--radius-lg);font-size:var(--text-sm);font-weight:700;box-shadow:var(--shadow-md);display:flex;align-items:center;gap:var(--space-2)}
+.btn-run:hover:not(:disabled){background:var(--color-primary-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.btn-run:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* progress */
+.progress-wrap{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6);display:none}
+.progress-wrap.visible{display:block}
+.progress-title{font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
+.progress-bar-wrap{height:8px;background:var(--color-surface-offset);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:var(--space-3)}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--color-pre-corp),var(--color-post-corp),var(--color-mes-corp));border-radius:var(--radius-xl);transition:width .4s ease;width:0%}
+.progress-log{font-size:var(--text-xs);font-family:var(--font-mono);color:var(--color-text-muted);max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.log-line{padding:2px 0;border-bottom:1px solid var(--color-divider)}
+.log-line.warn{color:var(--color-warning)}
+.log-line.err{color:var(--color-error)}
+.log-line.ok{color:var(--color-success)}
+.log-line:last-child{border:none;color:var(--color-text)}
+
+/* results */
+.results{display:none}
+.results.visible{display:block}
+.section-title{font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-2)}
+.section-title .sub{font-size:var(--text-xs);font-weight:500;color:var(--color-text-muted)}
+
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-3);margin-bottom:var(--space-8)}
+.kpi-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-4) var(--space-5);position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
+.kpi-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+.kpi-card.kpi-pre::before{background:var(--color-pre-corp)}
+.kpi-card.kpi-post::before{background:var(--color-post-corp)}
+.kpi-card.kpi-mes::before{background:var(--color-mes-corp)}
+.kpi-card.kpi-neutral::before{background:var(--color-primary)}
+.kpi-label{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted);margin-bottom:var(--space-2);display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)}
+.kpi-source{font-size:.55rem;font-weight:700;padding:2px 6px;border-radius:var(--radius-xl);color:#fff;text-transform:uppercase;letter-spacing:.04em}
+.kpi-source.src-pre{background:var(--color-pre-corp)}
+.kpi-source.src-post{background:var(--color-post-corp)}
+.kpi-source.src-mes{background:var(--color-mes-corp);color:#28251d}
+.kpi-value{font-size:var(--text-xl);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1);font-variant-numeric:tabular-nums}
+
+/* chart card */
+.chart-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm)}
+.chart-card h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-2)}
+.chart-card .chart-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)}
+.chart-inner{position:relative;height:380px}
+@media(max-width:800px){.chart-inner{height:520px}}
+.chart-legend{display:flex;gap:var(--space-4);justify-content:center;margin-top:var(--space-4);flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);font-weight:600}
+.legend-dot{width:14px;height:14px;border-radius:3px}
+
+/* tables */
+.data-table-wrap{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-5);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm);overflow-x:auto}
+.data-table-wrap h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-2)}
+.data-table-wrap .table-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)}
+.data-table{width:100%;border-collapse:collapse;font-size:var(--text-xs);min-width:540px}
+.data-table th{background:var(--color-surface-offset);font-weight:700;padding:var(--space-2) var(--space-3);text-align:left;border-bottom:1px solid var(--color-border);white-space:nowrap;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.04em;font-size:.65rem;position:sticky;top:0}
+.data-table th.col-pre{color:var(--color-pre-corp)}
+.data-table th.col-post{color:var(--color-post-corp)}
+.data-table th.col-mes{color:var(--color-mes-corp)}
+.data-table td{padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-divider);font-variant-numeric:tabular-nums}
+.data-table tr:last-child td{border:none}
+.data-table tr:hover td{background:var(--color-surface-offset)}
+.data-table td.num{font-family:var(--font-mono);text-align:right}
+.data-table td.competencia{font-weight:600}
+.delta-pos{color:var(--color-success);font-weight:600}
+.delta-neg{color:var(--color-error);font-weight:600}
+.delta-neu{color:var(--color-text-muted)}
+
+/* sensible */
+.sensible-card{background:var(--color-warning-bg);border:1px solid var(--color-warning);border-radius:var(--radius-xl);padding:var(--space-5);margin-bottom:var(--space-6)}
+.sensible-card h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-2);color:var(--color-warning);display:flex;align-items:center;gap:var(--space-2)}
+.sensible-card .sens-note{font-size:var(--text-xs);color:var(--color-warning);margin-bottom:var(--space-4);line-height:1.5}
+.sensible-card .data-table{background:var(--color-surface)}
+
+/* talleres */
+.talleres-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-6)}
+@media(max-width:700px){.talleres-grid{grid-template-columns:1fr}}
+.taller-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--shadow-sm)}
+.taller-card h4{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)}
+.taller-row{display:flex;justify-content:space-between;align-items:center;padding:var(--space-2) 0;border-bottom:1px solid var(--color-divider);font-size:var(--text-xs)}
+.taller-row:last-child{border:none}
+.taller-row .nombre{flex:1}
+.taller-row .count{font-family:var(--font-mono);font-weight:700;color:var(--color-primary)}
+.taller-row .pct{font-family:var(--font-mono);color:var(--color-text-muted);margin-left:var(--space-2)}
+
+/* comentarios */
+.comments-section{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-5);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm)}
+.comments-section h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-2)}
+.comments-section .comm-sub{font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)}
+.comments-search{width:100%;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font-size:var(--text-xs);margin-bottom:var(--space-3)}
+.comments-tabs{display:flex;gap:2px;background:var(--color-surface-offset);border-radius:var(--radius-md);padding:3px;margin-bottom:var(--space-4);flex-wrap:wrap}
+.comm-tab-btn{font-size:var(--text-xs);font-weight:600;padding:var(--space-2) var(--space-3);border-radius:calc(var(--radius-md) - 2px);color:var(--color-text-muted);white-space:nowrap}
+.comm-tab-btn.active{background:var(--color-surface-2);color:var(--color-text);box-shadow:var(--shadow-sm)}
+.comm-tab-content{display:none}
+.comm-tab-content.active{display:block}
+.comment-item{padding:var(--space-3);border:1px solid var(--color-divider);border-radius:var(--radius-md);margin-bottom:var(--space-2);background:var(--color-bg)}
+.comment-item .author{font-size:var(--text-xs);font-weight:700;color:var(--color-primary);margin-bottom:var(--space-1)}
+.comment-item .text{font-size:var(--text-xs);line-height:1.5}
+.comment-empty{padding:var(--space-4);text-align:center;color:var(--color-text-muted);font-size:var(--text-xs);font-style:italic}
+.comment-source-pre{border-left:3px solid var(--color-pre-corp)}
+.comment-source-post{border-left:3px solid var(--color-post-corp)}
+.comment-source-mes{border-left:3px solid var(--color-mes-corp)}
+
+/* trazabilidad */
+.traz-section{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);margin-bottom:var(--space-6);box-shadow:var(--shadow-sm)}
+.traz-section h3{font-size:var(--text-sm);font-weight:700;margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-2)}
+.traz-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-bottom:var(--space-5)}
+@media(max-width:700px){.traz-summary{grid-template-columns:1fr}}
+.traz-box{border-radius:var(--radius-lg);padding:var(--space-4);border:1px solid var(--color-border);background:var(--color-surface-2)}
+.traz-box.t-pre{background:var(--color-pre-corp-bg)}
+.traz-box.t-post{background:var(--color-post-corp-bg)}
+.traz-box.t-mes{background:var(--color-mes-corp-bg)}
+.traz-box-title{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--space-3)}
+.traz-box.t-pre .traz-box-title{color:var(--color-pre-corp)}
+.traz-box.t-post .traz-box-title{color:var(--color-post-corp)}
+.traz-box.t-mes .traz-box-title{color:#8a6310}
+.traz-row{display:flex;justify-content:space-between;align-items:center;font-size:var(--text-xs);padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.traz-row:last-child{border:none}
+.traz-row .lbl{color:var(--color-text-muted)}
+.traz-row .val{font-weight:600;font-family:var(--font-mono)}
+.traz-row .val.ok{color:var(--color-success)}
+.traz-row .val.warn{color:var(--color-warning)}
+.intersection-summary{background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);font-size:var(--text-xs);margin-bottom:var(--space-4)}
+.inter-row{display:flex;justify-content:space-between;padding:var(--space-1) 0;border-bottom:1px solid var(--color-divider)}
+.inter-row:last-child{border:none}
+.inter-row .lbl{color:var(--color-text-muted)}
+.inter-row .val{font-weight:700;font-family:var(--font-mono)}
+
+/* download */
+.download-section{text-align:center;padding:var(--space-8);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);margin-bottom:var(--space-6)}
+.download-icon{width:56px;height:56px;border-radius:var(--radius-xl);background:var(--color-primary-light);display:grid;place-items:center;margin-inline:auto;margin-bottom:var(--space-4);color:var(--color-primary)}
+.download-section h3{font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-2)}
+.download-section p{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-5);max-width:54ch;margin-inline:auto}
+.btn-download{background:var(--color-primary);color:#fff;padding:var(--space-3) var(--space-8);border-radius:var(--radius-lg);font-size:var(--text-sm);font-weight:700;display:inline-flex;align-items:center;gap:var(--space-2);box-shadow:var(--shadow-md)}
+.btn-download:hover{background:var(--color-primary-hover);transform:translateY(-1px)}
+
+/* alerts */
+.alert{display:none;align-items:center;gap:var(--space-3);background:var(--color-warning-bg);border:1px solid var(--color-warning);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-5);font-size:var(--text-xs);font-weight:600;color:var(--color-warning)}
+.alert.visible{display:flex}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="Logo">
+        <rect width="32" height="32" rx="8" fill="currentColor" opacity=".12"/>
+        <rect x="6" y="22" width="4" height="6" rx="1" fill="currentColor"/>
+        <rect x="12" y="17" width="4" height="11" rx="1" fill="currentColor"/>
+        <rect x="18" y="12" width="4" height="16" rx="1" fill="currentColor"/>
+        <rect x="24" y="7" width="4" height="21" rx="1" fill="currentColor"/>
+        <polyline points="8,20 14,14 20,9 26,5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-title">Integra-Te · 3 momentos</span>
+        <span class="logo-sub">PRE · Posterior · 1 mes después</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <nav class="nav-tabs">
+        <a class="nav-tab" href="ef.html">EF</a>
+        <a class="nav-tab active" href="it.html">IT</a>
+        <a class="nav-tab" href="seguimiento.html">Seguimiento</a>
+      </nav>
+      <button class="theme-btn" data-theme-toggle aria-label="Cambiar tema">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <div class="intro-card">
+      <div class="intro-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="intro-text">
+        <h2>Análisis del programa Integra-Te</h2>
+        <p>Sube las tres encuestas del programa: <strong style="color:var(--color-pre-corp)">PRE</strong> (antes de la formación), <strong style="color:var(--color-post-corp)">Posterior</strong> (justo después) y <strong style="color:#8a6310">1 mes después</strong> (seguimiento). La herramienta cruza por teléfono, calcula evolución de competencias, indicadores de satisfacción y empleabilidad, y exporta un Excel completo con todos los comentarios listos para copiar y pegar.</p>
+      </div>
+    </div>
+
+    <div class="steps-header">
+      <div class="step-chip active" id="step1chip"><div class="num">1</div> Subir las 3 encuestas</div>
+      <div class="step-sep"></div>
+      <div class="step-chip" id="step2chip"><div class="num">2</div> Procesar</div>
+      <div class="step-sep"></div>
+      <div class="step-chip" id="step3chip"><div class="num">3</div> Revisar y descargar</div>
+    </div>
+
+    <div class="upload-grid">
+      <div class="upload-card" id="dropPre" data-momento="pre">
+        <input type="file" accept=".xlsx" id="filePre" aria-label="Encuesta PRE">
+        <div class="badge-momento badge-pre">Encuesta Previa</div>
+        <div class="upload-icon" id="iconPre">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-label">PRE</div>
+        <div class="upload-hint">Antes de la formación · Nada/Regular/Bien/Muy&nbsp;bien</div>
+        <div class="upload-filename" id="fileNamePre" style="display:none"></div>
+      </div>
+      <div class="upload-card" id="dropPost" data-momento="post">
+        <input type="file" accept=".xlsx" id="filePost" aria-label="Encuesta Posterior">
+        <div class="badge-momento badge-post">Encuesta Posterior</div>
+        <div class="upload-icon" id="iconPost">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-label">POSTERIOR</div>
+        <div class="upload-hint">Justo después de la formación · misma escala</div>
+        <div class="upload-filename" id="fileNamePost" style="display:none"></div>
+      </div>
+      <div class="upload-card" id="dropMes" data-momento="mes">
+        <input type="file" accept=".xlsx" id="fileMes" aria-label="Encuesta 1 mes">
+        <div class="badge-momento badge-mes">1 mes después</div>
+        <div class="upload-icon" id="iconMes">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-label">1 MES</div>
+        <div class="upload-hint">Seguimiento al mes · Nada/Poco/Bastante/Mucho</div>
+        <div class="upload-filename" id="fileNameMes" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="alert" id="alertFiles">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Sube las tres encuestas antes de procesar.
+    </div>
+
+    <div class="run-section">
+      <button class="btn-run" id="btnRun" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Analizar las 3 encuestas
+      </button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Procesando...
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-log" id="progressLog"></div>
+    </div>
+
+    <div class="results" id="results">
+
+      <!-- KPIs -->
+      <p class="section-title">📊 Indicadores cuantitativos <span class="sub">— de los archivos donde corresponde la pregunta</span></p>
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <!-- Competencias: tabla + gráfico -->
+      <p class="section-title">📈 Evolución de competencias <span class="sub" id="compSub"></span></p>
+
+      <div class="chart-card">
+        <h3>Evolución por competencia · 3 momentos</h3>
+        <div class="chart-sub">Escala 0–100% · valores etiquetados encima de cada barra</div>
+        <div class="chart-inner"><canvas id="compChart"></canvas></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#479589"></div> Previa</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#B0162D"></div> Posterior</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#F6B221"></div> 1 mes después</div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <h3>Tabla de medias por competencia</h3>
+        <div class="table-sub" id="compTableSub"></div>
+        <table class="data-table" id="compTable">
+          <thead>
+            <tr>
+              <th>Competencia</th>
+              <th class="col-pre">Previa (%)</th>
+              <th class="col-post">Posterior (%)</th>
+              <th class="col-mes">1 mes (%)</th>
+              <th>Δ Pre→Post</th>
+              <th>Δ Post→Mes</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Sensibles -->
+      <div class="sensible-card" id="sensibleCard" style="display:none">
+        <h3>⚠️ Competencias sensibles · candidatas a interpretación cualitativa</h3>
+        <p class="sens-note">Estas competencias mejoran mucho durante la formación pero caen al mes. <strong>La caída no necesariamente significa olvido</strong> — puede reflejar falta de oportunidad real de aplicar la competencia (no todos los candidatos han tenido una entrevista online o presencial en el mes posterior). Revisa caso a caso antes de concluir.</p>
+        <table class="data-table" id="sensibleTable">
+          <thead>
+            <tr><th>Competencia</th><th class="col-pre">Pre%</th><th class="col-post">Post%</th><th class="col-mes">Mes%</th><th>Δ Pre→Post</th><th>Δ Post→Mes</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Talleres -->
+      <p class="section-title">🎓 Valoración de talleres <span class="sub">— de la encuesta Posterior</span></p>
+      <div class="talleres-grid">
+        <div class="taller-card">
+          <h4>🏆 Taller que más ha gustado</h4>
+          <div id="tallerMas"></div>
+        </div>
+        <div class="taller-card">
+          <h4>📉 Taller que menos ha gustado</h4>
+          <div id="tallerMenos"></div>
+        </div>
+      </div>
+
+      <!-- Comentarios -->
+      <div class="comments-section">
+        <h3>💬 Comentarios cualitativos · navegables y exportables</h3>
+        <p class="comm-sub">Todos los comentarios abiertos de las tres encuestas en bruto, listos para revisar o copiar a un LLM externo para agrupar por temas. Buscador filtra por texto o nombre.</p>
+        <input type="text" class="comments-search" id="commSearch" placeholder="Buscar en comentarios...">
+        <div class="comments-tabs" id="commTabs"></div>
+        <div id="commContent"></div>
+      </div>
+
+      <!-- Trazabilidad -->
+      <div class="traz-section">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Trazabilidad y control de calidad
+        </h3>
+        <div class="traz-summary" id="trazSummary"></div>
+        <h4 style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-muted);margin-bottom:var(--space-2)">Intersecciones del cruce</h4>
+        <div class="intersection-summary" id="interSummary"></div>
+      </div>
+
+      <!-- Descarga -->
+      <div class="download-section">
+        <div class="download-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h3>Excel completo listo</h3>
+        <p>Incluye: datos PRE/POST/1MES cruzados · medias por competencia · indicadores cuantitativos · talleres · <strong>todos los comentarios estructurados para copiar a un LLM</strong> · trazabilidad detallada.</p>
+        <button class="btn-download" id="btnDownload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar Excel de Análisis
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+<script>
+// ────────────────────────────────────────────────────────────────────────────
+// THEME
+// ────────────────────────────────────────────────────────────────────────────
+(function(){
+  const btn=document.querySelector('[data-theme-toggle]'),root=document.documentElement;
+  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  root.setAttribute('data-theme',d);
+  if(btn) btn.addEventListener('click',()=>{d=d==='dark'?'light':'dark';root.setAttribute('data-theme',d);if(compChartInstance){renderChart();}});
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────────────────────────
+let filePreData=null,filePostData=null,fileMesData=null;
+let resultBlob=null, analysis=null, compChartInstance=null;
+
+// ────────────────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ────────────────────────────────────────────────────────────────────────────
+const TEL_COL_NAME = 'Número de Teléfono';
+const NAME_COL_NAME = 'Nombre y Apellidos';
+
+// Las 16 competencias en orden estable en los 3 Excels (mismas posiciones lógicas)
+const COMPETENCIAS = [
+  { id:'gmail',     short:'Gmail',           long:'Cuenta de Gmail' },
+  { id:'drive',     short:'Drive',           long:'Uso de Drive' },
+  { id:'adjuntos',  short:'Adjuntos',        long:'Enviar correos con archivos adjuntos' },
+  { id:'carta',     short:'Carta present.',  long:'Carta de presentación' },
+  { id:'infojobs',  short:'Infojobs',        long:'Cuenta de Infojobs' },
+  { id:'aplicar',   short:'Aplicar ofertas', long:'Aplicar a ofertas de empleo' },
+  { id:'preparar',  short:'Preparar entr.',  long:'Prepararse una entrevista' },
+  { id:'entPres',   short:'Entr. presencial',long:'Hacer entrevistas de trabajo presenciales' },
+  { id:'entOnline', short:'Entr. online',    long:'Hacer entrevistas de trabajo online' },
+  { id:'mailCita',  short:'Cita por correo', long:'Contestar una cita para entrevista por correo' },
+  { id:'llamada',   short:'Llamada tel.',    long:'Contestar llamada telefónica para un puesto' },
+  { id:'cvMovil',   short:'CV en móvil',     long:'Acceder a mi CV desde el móvil' },
+  { id:'calendar',  short:'Calendar',        long:'Uso de Google Calendar' },
+  { id:'ia',        short:'IA búsqueda',     long:'Uso de la Inteligencia Artificial en la búsqueda de empleo' },
+  { id:'redes',     short:'Redes Sociales',  long:'Redes Sociales' },
+  { id:'huella',    short:'Huella digital',  long:'Conciencia de Huella Digital' }
+];
+
+// Mapas de escala 0-100%
+const MAP_PRE_FINAL = { 'Nada':0, 'Regular':25, 'Bien':75, 'Muy bien':100 };
+const MAP_1MES      = { 'Nada':0, 'Poco':25,    'Bastante':75, 'Mucho':100 };
+
+// Competencias que la analista marca como "sensibles" (interpretación humana)
+const SENSIBLES_IDS = ['entPres', 'entOnline', 'llamada', 'preparar'];
+
+// Umbrales para auto-detección de candidatas a sensibles
+// (queremos solo las realmente extremas — las que la analista marca como "no es olvido, es falta de oportunidad real")
+const SENS_MIN_MEJORA_PP = 20;    // mejora PRE→POST > 20pp
+const SENS_MIN_CAIDA_PP  = 30;    // caída POST→1MES > 30pp (umbral alto: solo las extremas)
+
+// Colores corporativos
+const COLOR_PRE='#479589', COLOR_POST='#B0162D', COLOR_MES='#F6B221';
+
+// ────────────────────────────────────────────────────────────────────────────
+// UPLOAD WIRING
+// ────────────────────────────────────────────────────────────────────────────
+function setupUpload(dropId, inputId, nameId, iconId, cb){
+  const drop=document.getElementById(dropId), input=document.getElementById(inputId);
+  const nameEl=document.getElementById(nameId), iconEl=document.getElementById(iconId);
+  async function handle(file){
+    if(!file || !file.name.endsWith('.xlsx')){alert('Sube un archivo .xlsx');return;}
+    const buf=await file.arrayBuffer();
+    drop.classList.add('loaded');
+    nameEl.textContent='✓ '+file.name; nameEl.style.display='block';
+    iconEl.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    cb(new Uint8Array(buf));
+    checkReady();
+  }
+  input.addEventListener('change', e=>{ if(e.target.files[0]) handle(e.target.files[0]); });
+  drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('drag-over'); });
+  drop.addEventListener('dragleave', ()=>drop.classList.remove('drag-over'));
+  drop.addEventListener('drop', e=>{ e.preventDefault(); drop.classList.remove('drag-over'); const f=e.dataTransfer?.files[0]; if(f) handle(f); });
+}
+setupUpload('dropPre','filePre','fileNamePre','iconPre', d=>filePreData=d);
+setupUpload('dropPost','filePost','fileNamePost','iconPost', d=>filePostData=d);
+setupUpload('dropMes','fileMes','fileNameMes','iconMes', d=>fileMesData=d);
+
+function checkReady(){
+  const ready = filePreData && filePostData && fileMesData;
+  btnRun.disabled = !ready;
+  if(ready) setStep(2);
+}
+
+function setStep(n){
+  ['step1chip','step2chip','step3chip'].forEach((id,i)=>{
+    const el=document.getElementById(id); el.classList.remove('active','done');
+    if(i+1<n) el.classList.add('done');
+    else if(i+1===n) el.classList.add('active');
+  });
+}
+
+function log(msg, pct, cls=''){
+  progressWrap.classList.add('visible');
+  if(pct!==undefined) progressBar.style.width=pct+'%';
+  const line=document.createElement('div');
+  line.className='log-line'+(cls?' '+cls:'');
+  line.textContent=msg;
+  progressLog.appendChild(line);
+  progressLog.scrollTop=progressLog.scrollHeight;
+}
+
+const btnRun=document.getElementById('btnRun');
+const progressWrap=document.getElementById('progressWrap');
+const progressBar=document.getElementById('progressBar');
+const progressLog=document.getElementById('progressLog');
+const resultsEl=document.getElementById('results');
+const btnDownload=document.getElementById('btnDownload');
+
+// ────────────────────────────────────────────────────────────────────────────
+// PARSE XLSX
+// ────────────────────────────────────────────────────────────────────────────
+function parseXlsx(u8){
+  const wb=XLSX.read(u8,{type:'array'});
+  return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:null});
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// PHONE CLEANER (reutilizado idéntico de EF)
+// ────────────────────────────────────────────────────────────────────────────
+function cleanPhone(val){
+  if(val===null||val===undefined) return {tel:null, err:'Valor vacío / nulo'};
+  let s=String(val).trim();
+  const orig=s;
+  s=s.replace(/[\s\+\.]/g,'');
+  if(!s) return {tel:null, err:'Valor vacío tras limpiar'};
+  if(/[a-zA-Z]/.test(s)) return {tel:null, err:`Contiene letras: "${orig}"`};
+  if(s.startsWith('34')&&s.length===11) s=s.slice(2);
+  if(/^\d{9}$/.test(s)) return {tel:parseInt(s), err:null};
+  return {tel:null, err:`Formato inválido (${s.length} dígitos): "${orig}"`};
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// CORE: detecta columna por nombre exacto (con tolerancia a variantes mínimas)
+// ────────────────────────────────────────────────────────────────────────────
+function findCol(headers, candidatos){
+  for(const c of candidatos){
+    const idx=headers.indexOf(c);
+    if(idx!==-1) return {name:c, idx};
+  }
+  return {name:null, idx:-1};
+}
+
+// Las 16 competencias se ubican por POSICIÓN relativa al teléfono.
+// En los 3 Excels, después del teléfono vienen:
+//   [tel, "Puntos: Número de Teléfono", "Comentarios: Número de Teléfono",
+//    "Puntos: <intro>", "Comentarios: <intro>",
+//    competencia1, "Puntos: competencia1", "Comentarios: competencia1",
+//    competencia2, ...]
+// Es decir, cada competencia ocupa 3 columnas y empezamos en tel+5.
+// Pero para robustez extraemos las cols cuyo nombre NO empieza por "Puntos:" ni "Comentarios:"
+// y descartamos el header "intro" que es la primera (la pregunta general). Las primeras 16 son las nuestras.
+function extractCompetenciaCols(headers, telIdx){
+  const out=[];
+  // Empezar después de telIdx + las cols de Puntos/Comentarios del teléfono
+  for(let i=telIdx+1; i<headers.length; i++){
+    const h=headers[i];
+    if(h.startsWith('Puntos:') || h.startsWith('Comentarios:')) continue;
+    out.push({name:h, idx:i});
+    if(out.length===16) break;
+  }
+  return out;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// PROCESS A SHEET
+// ────────────────────────────────────────────────────────────────────────────
+function processSheet(rows, kind){ // kind: 'pre' | 'post' | 'mes'
+  if(!rows.length) throw new Error(`Archivo ${kind} sin filas`);
+  const headers = Object.keys(rows[0]);
+
+  const telCol = findCol(headers, [TEL_COL_NAME, 'Número de teléfono (sin espacios)', 'Número de teléfono']);
+  if(telCol.idx===-1) throw new Error(`Columna "${TEL_COL_NAME}" no encontrada en archivo ${kind}`);
+
+  const nameCol = findCol(headers, [NAME_COL_NAME, 'Nombre y Apellido', 'Nombre']);
+
+  const compCols = extractCompetenciaCols(headers, telCol.idx);
+  if(compCols.length<16){
+    log(`⚠ ${kind.toUpperCase()}: solo se encontraron ${compCols.length} competencias (esperado 16)`, undefined, 'warn');
+  }
+
+  const valueMap = kind==='mes' ? MAP_1MES : MAP_PRE_FINAL;
+
+  const invalid=[], dupSet=new Set(), dups=[], map=new Map();
+  const rawRows=[]; // todos los rows válidos para los listados de comentarios
+
+  for(const row of rows){
+    const {tel, err} = cleanPhone(row[TEL_COL_NAME] ?? row['Número de teléfono (sin espacios)']);
+    if(err){ invalid.push({orig: row[TEL_COL_NAME], err}); continue; }
+    if(map.has(tel)){ dups.push(tel); continue; }
+
+    const nombre = nameCol.idx!==-1 ? (row[nameCol.name] ?? '') : '';
+    const valores = {};
+    compCols.forEach((c, i)=>{
+      const raw = row[c.name];
+      if(raw===null || raw===undefined || raw==='') { valores[COMPETENCIAS[i]?.id] = null; return; }
+      const sval = String(raw).trim();
+      const num = valueMap[sval];
+      valores[COMPETENCIAS[i]?.id] = (num===undefined ? null : num);
+    });
+
+    const entry = { tel, nombre, valores, _raw: row };
+    map.set(tel, entry);
+    rawRows.push(entry);
+  }
+
+  return { map, invalid, dups, headers, telCol, nameCol, compCols, totalFilas: rows.length, valid: map.size, rawRows };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// FULL PIPELINE
+// ────────────────────────────────────────────────────────────────────────────
+function processAll(rawPre, rawPost, rawMes){
+  log('🧹 Procesando PRE...', 35);
+  const pre  = processSheet(rawPre, 'pre');
+  log(`   ${pre.valid} válidos, ${pre.invalid.length} inválidos, ${pre.dups.length} dups`, 40);
+
+  log('🧹 Procesando POSTERIOR...', 45);
+  const post = processSheet(rawPost, 'post');
+  log(`   ${post.valid} válidos, ${post.invalid.length} inválidos, ${post.dups.length} dups`, 50);
+
+  log('🧹 Procesando 1 MES...', 55);
+  const mes  = processSheet(rawMes, 'mes');
+  log(`   ${mes.valid} válidos, ${mes.invalid.length} inválidos, ${mes.dups.length} dups`, 60);
+
+  // Conjuntos
+  const setPre  = new Set(pre.map.keys());
+  const setPost = new Set(post.map.keys());
+  const setMes  = new Set(mes.map.keys());
+
+  const interPP   = [...setPre].filter(t=>setPost.has(t)).sort((a,b)=>a-b); // PRE ∩ POST
+  const interAll  = interPP.filter(t=>setMes.has(t)).sort((a,b)=>a-b);       // PRE ∩ POST ∩ MES
+  const soloPre   = [...setPre].filter(t=>!setPost.has(t)&&!setMes.has(t));
+  const soloPost  = [...setPost].filter(t=>!setPre.has(t)&&!setMes.has(t));
+  const soloMes   = [...setMes].filter(t=>!setPre.has(t)&&!setPost.has(t));
+
+  log(`🔗 Cruces: PRE∩POST=${interPP.length} · los 3=${interAll.length}`, 65, 'ok');
+
+  // ───── Tabla de competencias ─────
+  // Para PRE: media de PRE sobre interPP (los que tienen PRE+POST)
+  // Para POST: media de POST sobre interPP
+  // Para MES: media de MES sobre interAll (los que están en los 3)
+  // Para los deltas usamos:
+  //   Δ Pre→Post sobre interPP (más datos)
+  //   Δ Post→Mes sobre interAll (los que están en los 3)
+  function avgFor(map, ids, compId){
+    const vals = ids.map(t=>map.get(t).valores[compId]).filter(v=>v!==null && !isNaN(v));
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+  }
+
+  const competencias = COMPETENCIAS.map(c=>{
+    const prePct  = avgFor(pre.map,  interPP,  c.id);  // base PRE∩POST
+    const postPct = avgFor(post.map, interPP,  c.id);  // base PRE∩POST
+    const mesPct  = avgFor(mes.map,  interAll, c.id);  // base 3-way
+
+    // Δ Pre→Post: sobre interPP (más datos)
+    const deltaPP = (prePct!==null && postPct!==null) ? (postPct - prePct) : null;
+    // Δ Post→Mes: sobre interAll (recalculamos para que sean comparables)
+    const postPctAll = avgFor(post.map, interAll, c.id);
+    const deltaPM = (postPctAll!==null && mesPct!==null) ? (mesPct - postPctAll) : null;
+
+    return { ...c, prePct, postPct, mesPct, postPctAll, deltaPP, deltaPM };
+  });
+
+  // ───── Competencias sensibles ─────
+  const sensibles = competencias.filter(c=>{
+    if(c.deltaPP===null||c.deltaPM===null) return false;
+    return c.deltaPP > SENS_MIN_MEJORA_PP && c.deltaPM < -SENS_MIN_CAIDA_PP;
+  });
+
+  // ───── KPIs cuantitativos ─────
+  // Satisfacción FINAL (1-5 → %) y recomendación (0-10 → %)
+  // Mismas preguntas presentes en POST y en MES; calculamos ambos lados
+  function avgFromCol(rows, colName, divisor){
+    const vals = rows.map(r=>r._raw[colName])
+                     .filter(v=>v!==null && v!==undefined && !isNaN(parseFloat(v)))
+                     .map(v=>parseFloat(v));
+    if(!vals.length) return null;
+    const m = vals.reduce((a,b)=>a+b,0)/vals.length;
+    return { mean:m, pct: m/divisor*100, n: vals.length };
+  }
+
+  const satPost = avgFromCol(post.rawRows, '¿Cuál es tu nivel de satisfacción con el programa?', 5);
+  const recPost = avgFromCol(post.rawRows, '¿Recomendarías este programa a otras personas?', 10);
+  const satMes  = avgFromCol(mes.rawRows,  '¿Cuál es tu nivel de satisfacción con el programa?', 5);
+  const recMes  = avgFromCol(mes.rawRows,  '¿Recomendarías este programa a otras personas?', 10);
+
+  // Empleabilidad y trabajo encontrado (solo en 1MES)
+  const empCol = '¿Crees que realizar este programa ha mejorado tu empleabilidad?';
+  const trabCol = '¿Has encontrado trabajo desde que estuviste en la formación?';
+
+  function countYesEmp(rows){
+    const valid = rows.map(r=>r._raw[empCol]).filter(v=>v!==null && v!==undefined && v!=='');
+    const yes = valid.filter(v => String(v).trim()==='Mucho' || String(v).trim()==='Bastante').length;
+    return { yes, total: valid.length, pct: valid.length ? yes/valid.length*100 : null };
+  }
+  function countYesTrab(rows){
+    const valid = rows.map(r=>r._raw[trabCol]).filter(v=>v!==null && v!==undefined && v!=='');
+    const yes = valid.filter(v => /^s[ií]$/i.test(String(v).trim())).length;
+    return { yes, total: valid.length, pct: valid.length ? yes/valid.length*100 : null };
+  }
+  const empleabilidad = countYesEmp(mes.rawRows);
+  const trabajo       = countYesTrab(mes.rawRows);
+
+  // ───── Talleres (de POST) ─────
+  function countTaller(rows, colName){
+    const counts = {};
+    let total=0;
+    for(const r of rows){
+      const v = r._raw[colName];
+      if(v===null||v===undefined||String(v).trim()==='') continue;
+      const k = String(v).trim();
+      counts[k] = (counts[k]||0) + 1;
+      total++;
+    }
+    return { counts, total, ordered: Object.entries(counts).sort((a,b)=>b[1]-a[1]) };
+  }
+  const tallerMas   = countTaller(post.rawRows, '¿Cuál es el taller que más te ha gustado?');
+  const tallerMenos = countTaller(post.rawRows, '¿Y el que menos te ha gustado?');
+
+  // ───── Comentarios (raw, navegables) ─────
+  // Esquema: { origen, etiqueta, items: [{nombre, tel, pregunta, texto}] }
+  function collectComments(rows, origen, definiciones){
+    // definiciones: [{ colName, pregunta }]
+    const groups = [];
+    for(const def of definiciones){
+      const items=[];
+      for(const r of rows){
+        const v = r._raw[def.colName];
+        if(v===null||v===undefined) continue;
+        const s = String(v).trim();
+        if(!s || s==='.' || s.toLowerCase()==='no' || s.toLowerCase()==='nada' || s.toLowerCase()==='ninguno') {
+          // mantener: estos son respuestas válidas aunque cortas, pero las dejamos
+        }
+        if(!s) continue;
+        items.push({ nombre: r.nombre || '(sin nombre)', tel: r.tel, pregunta: def.pregunta, texto: s });
+      }
+      groups.push({ origen, etiqueta: def.pregunta, colName: def.colName, items });
+    }
+    return groups;
+  }
+
+  const comentariosPre = collectComments(pre.rawRows, 'pre', [
+    { colName:'¿Cuál es el taller que más consideras que te va a ayudar?', pregunta:'PRE · Taller que más le ayudará' },
+    { colName:'¿Por qué?', pregunta:'PRE · ¿Por qué ese taller?' },
+    { colName:'¿Echas en falta algún contenido que crees importante para la búsqueda de empleo?', pregunta:'PRE · ¿Echas en falta algún contenido?' },
+    { colName:'Algún comentario, sugerencia, recomendación, aspecto positivo....', pregunta:'PRE · Comentario general' }
+  ]);
+
+  const comentariosPost = collectComments(post.rawRows, 'post', [
+    { colName:'¿Cuál es el taller que más te ha gustado?', pregunta:'POST · Taller que más gustó' },
+    { colName:'¿Por qué?', pregunta:'POST · ¿Por qué el que más gustó?' },
+    { colName:'¿Y el que menos te ha gustado?', pregunta:'POST · Taller que menos gustó' },
+    { colName:'¿Por qué?2', pregunta:'POST · ¿Por qué el que menos gustó?' },
+    { colName:'¿Has echado en falta algún contenido que crees importante para la búsqueda de empleo?', pregunta:'POST · ¿Echaste en falta algún contenido?' },
+    { colName:'Algún comentario, sugerencia, recomendación, aspecto positivo....', pregunta:'POST · Comentario general' }
+  ]);
+
+  const comentariosMes = collectComments(mes.rawRows, 'mes', [
+    { colName:'Algún comentario, sugerencia, recomendación, aspecto positivo....', pregunta:'1 MES · Comentario general' }
+  ]);
+
+  return {
+    pre, post, mes,
+    interPP, interAll, soloPre, soloPost, soloMes,
+    competencias, sensibles,
+    kpis: { satPost, recPost, satMes, recMes, empleabilidad, trabajo },
+    talleres: { mas: tallerMas, menos: tallerMenos },
+    comentarios: { pre: comentariosPre, post: comentariosPost, mes: comentariosMes }
+  };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// RENDER: KPIs
+// ────────────────────────────────────────────────────────────────────────────
+function fmtPct(v){ return v===null||v===undefined ? '—' : v.toFixed(2)+'%'; }
+function fmt1(v){ return v===null||v===undefined ? '—' : v.toFixed(1); }
+
+function renderKPIs(a){
+  const grid=document.getElementById('kpiGrid');
+  const cards = [];
+
+  // Cobertura
+  cards.push({
+    label:'Cobertura PRE+POST',
+    source:'cruce',
+    value: a.interPP.length,
+    sub: `de ${a.pre.valid} PRE válidos · ${(a.interPP.length/Math.max(a.pre.valid,1)*100).toFixed(1)}%`,
+    cls:'kpi-neutral'
+  });
+  cards.push({
+    label:'Cobertura 3 momentos',
+    source:'cruce',
+    value: a.interAll.length,
+    sub: `de ${a.mes.valid} en 1MES · ${(a.interAll.length/Math.max(a.mes.valid,1)*100).toFixed(1)}%`,
+    cls:'kpi-neutral'
+  });
+
+  // Satisfacción Posterior
+  if(a.kpis.satPost){
+    cards.push({
+      label:'Satisfacción',
+      sourceTag:'POST',
+      sourceCls:'src-post',
+      value: a.kpis.satPost.pct.toFixed(2)+'%',
+      sub:`media ${a.kpis.satPost.mean.toFixed(2)}/5 · n=${a.kpis.satPost.n}`,
+      cls:'kpi-post'
+    });
+  }
+  // Satisfacción 1 mes
+  if(a.kpis.satMes){
+    cards.push({
+      label:'Satisfacción',
+      sourceTag:'1 MES',
+      sourceCls:'src-mes',
+      value: a.kpis.satMes.pct.toFixed(2)+'%',
+      sub:`media ${a.kpis.satMes.mean.toFixed(2)}/5 · n=${a.kpis.satMes.n}`,
+      cls:'kpi-mes'
+    });
+  }
+  // Recomendación Posterior
+  if(a.kpis.recPost){
+    cards.push({
+      label:'Recomendación',
+      sourceTag:'POST',
+      sourceCls:'src-post',
+      value: a.kpis.recPost.pct.toFixed(2)+'%',
+      sub:`media ${a.kpis.recPost.mean.toFixed(2)}/10 · n=${a.kpis.recPost.n}`,
+      cls:'kpi-post'
+    });
+  }
+  // Recomendación 1 mes
+  if(a.kpis.recMes){
+    cards.push({
+      label:'Recomendación',
+      sourceTag:'1 MES',
+      sourceCls:'src-mes',
+      value: a.kpis.recMes.pct.toFixed(2)+'%',
+      sub:`media ${a.kpis.recMes.mean.toFixed(2)}/10 · n=${a.kpis.recMes.n}`,
+      cls:'kpi-mes'
+    });
+  }
+  // Empleabilidad mejorada
+  if(a.kpis.empleabilidad && a.kpis.empleabilidad.pct!==null){
+    cards.push({
+      label:'Mejoró empleabilidad',
+      sourceTag:'1 MES',
+      sourceCls:'src-mes',
+      value: a.kpis.empleabilidad.pct.toFixed(2)+'%',
+      sub:`${a.kpis.empleabilidad.yes}/${a.kpis.empleabilidad.total} (Mucho+Bastante)`,
+      cls:'kpi-mes'
+    });
+  }
+  // Encontró trabajo
+  if(a.kpis.trabajo && a.kpis.trabajo.pct!==null){
+    cards.push({
+      label:'Encontró trabajo',
+      sourceTag:'1 MES',
+      sourceCls:'src-mes',
+      value: a.kpis.trabajo.pct.toFixed(2)+'%',
+      sub:`${a.kpis.trabajo.yes}/${a.kpis.trabajo.total} dijo "Sí"`,
+      cls:'kpi-mes'
+    });
+  }
+
+  grid.innerHTML = cards.map(c=>`
+    <div class="kpi-card ${c.cls||''}">
+      <div class="kpi-label">
+        <span>${c.label}</span>
+        ${c.sourceTag?`<span class="kpi-source ${c.sourceCls}">${c.sourceTag}</span>`:''}
+      </div>
+      <div class="kpi-value">${c.value}</div>
+      <div class="kpi-sub">${c.sub||''}</div>
+    </div>
+  `).join('');
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// RENDER: tabla y gráfico de competencias
+// ────────────────────────────────────────────────────────────────────────────
+function renderCompTable(a){
+  const tbody=document.querySelector('#compTable tbody');
+  document.getElementById('compTableSub').textContent =
+    `Previa y Posterior calculadas sobre ${a.interPP.length} candidatos (PRE∩POST) · 1 mes calculado sobre ${a.interAll.length} (PRE∩POST∩1MES)`;
+
+  tbody.innerHTML = a.competencias.map(c=>{
+    const dPP = c.deltaPP;
+    const dPM = c.deltaPM;
+    const cPP = dPP===null?'delta-neu':(dPP>0?'delta-pos':(dPP<0?'delta-neg':'delta-neu'));
+    const cPM = dPM===null?'delta-neu':(dPM>0?'delta-pos':(dPM<0?'delta-neg':'delta-neu'));
+    const fmtDelta = v => v===null?'—':(v>0?'+':'')+v.toFixed(2)+'pp';
+    return `<tr>
+      <td class="competencia">${c.long}</td>
+      <td class="num">${fmtPct(c.prePct)}</td>
+      <td class="num">${fmtPct(c.postPct)}</td>
+      <td class="num">${fmtPct(c.mesPct)}</td>
+      <td class="num ${cPP}">${fmtDelta(dPP)}</td>
+      <td class="num ${cPM}">${fmtDelta(dPM)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChart(){
+  const a = analysis;
+  if(!a) return;
+  if(compChartInstance) compChartInstance.destroy();
+
+  const ctx=document.getElementById('compChart').getContext('2d');
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  const labels = a.competencias.map(c=>c.short);
+
+  compChartInstance = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        { label:'Previa',    data: a.competencias.map(c=>c.prePct),     backgroundColor: COLOR_PRE,  borderRadius:3, borderSkipped:false },
+        { label:'Posterior', data: a.competencias.map(c=>c.postPct),    backgroundColor: COLOR_POST, borderRadius:3, borderSkipped:false },
+        { label:'1 mes',     data: a.competencias.map(c=>c.mesPct),     backgroundColor: COLOR_MES,  borderRadius:3, borderSkipped:false }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:false },
+        datalabels:{
+          anchor:'end', align:'top',
+          color: dk?'#cdccca':'#28251d',
+          font:{ family:'Inter', weight:700, size:8 },
+          formatter: v => v===null||v===undefined ? '' : v.toFixed(1)
+        },
+        tooltip:{ callbacks:{ label: c => `${c.dataset.label}: ${c.parsed.y===null?'—':c.parsed.y.toFixed(2)+'%'}` } }
+      },
+      scales:{
+        y:{ min:0, max:110,
+            ticks:{ color: dk?'#797876':'#7a7974', stepSize:25, callback: v=>v>100?'':v+'%' },
+            grid:{ color: dk?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)' } },
+        x:{ ticks:{ color: dk?'#797876':'#7a7974', font:{ family:'Inter', size:10, weight:600 }, maxRotation:45, minRotation:30 },
+            grid:{ display:false } }
+      }
+    },
+    plugins:[ChartDataLabels]
+  });
+}
+
+function renderSensibles(a){
+  const card=document.getElementById('sensibleCard');
+  if(!a.sensibles.length){ card.style.display='none'; return; }
+  card.style.display='block';
+  const tbody=card.querySelector('tbody');
+  const fmtDelta = v => v===null?'—':(v>0?'+':'')+v.toFixed(2)+'pp';
+  tbody.innerHTML = a.sensibles.map(c=>`
+    <tr>
+      <td class="competencia">${c.long}</td>
+      <td class="num">${fmtPct(c.prePct)}</td>
+      <td class="num">${fmtPct(c.postPct)}</td>
+      <td class="num">${fmtPct(c.mesPct)}</td>
+      <td class="num delta-pos">${fmtDelta(c.deltaPP)}</td>
+      <td class="num delta-neg">${fmtDelta(c.deltaPM)}</td>
+    </tr>
+  `).join('');
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// RENDER: talleres
+// ────────────────────────────────────────────────────────────────────────────
+function renderTalleres(a){
+  function html(t){
+    if(!t.total) return '<div style="font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;padding:var(--space-3)">Sin datos</div>';
+    return t.ordered.map(([nombre, count])=>{
+      const pct = (count/t.total*100).toFixed(1);
+      return `<div class="taller-row">
+        <span class="nombre">${nombre}</span>
+        <span class="count">${count}</span>
+        <span class="pct">${pct}%</span>
+      </div>`;
+    }).join('') + `<div style="font-size:.65rem;color:var(--color-text-muted);margin-top:var(--space-3);text-align:right">Total respuestas: ${t.total}</div>`;
+  }
+  document.getElementById('tallerMas').innerHTML   = html(a.talleres.mas);
+  document.getElementById('tallerMenos').innerHTML = html(a.talleres.menos);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// RENDER: comentarios navegables
+// ────────────────────────────────────────────────────────────────────────────
+let _commGroups = []; // referencia para filtrar
+
+function renderComments(a){
+  _commGroups = [...a.comentarios.pre, ...a.comentarios.post, ...a.comentarios.mes];
+
+  // tabs
+  const tabsEl=document.getElementById('commTabs');
+  tabsEl.innerHTML = _commGroups.map((g, i)=>{
+    return `<button class="comm-tab-btn ${i===0?'active':''}" data-comm-idx="${i}">${g.etiqueta} <span style="opacity:.6">(${g.items.length})</span></button>`;
+  }).join('');
+
+  // contenido inicial
+  drawCommGroup(0, '');
+
+  // listeners
+  tabsEl.querySelectorAll('.comm-tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabsEl.querySelectorAll('.comm-tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const idx = parseInt(btn.dataset.commIdx);
+      drawCommGroup(idx, document.getElementById('commSearch').value);
+    });
+  });
+
+  document.getElementById('commSearch').addEventListener('input', e=>{
+    const active = tabsEl.querySelector('.comm-tab-btn.active');
+    const idx = active ? parseInt(active.dataset.commIdx) : 0;
+    drawCommGroup(idx, e.target.value);
+  });
+}
+
+function drawCommGroup(idx, filter){
+  const g = _commGroups[idx];
+  const content = document.getElementById('commContent');
+  if(!g){ content.innerHTML=''; return; }
+  const f = (filter||'').toLowerCase().trim();
+  const items = !f ? g.items : g.items.filter(it =>
+    it.texto.toLowerCase().includes(f) || (it.nombre||'').toLowerCase().includes(f)
+  );
+
+  if(!items.length){
+    content.innerHTML = '<div class="comment-empty">Sin comentarios en esta sección' + (f?` para "${filter}"`:'') + '</div>';
+    return;
+  }
+  content.innerHTML = items.map(it=>`
+    <div class="comment-item comment-source-${g.origen}">
+      <div class="author">${escapeHtml(it.nombre)} <span style="color:var(--color-text-faint);font-weight:500">· ${it.tel}</span></div>
+      <div class="text">${escapeHtml(it.texto)}</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// RENDER: trazabilidad
+// ────────────────────────────────────────────────────────────────────────────
+function renderTraz(a){
+  const sum=document.getElementById('trazSummary');
+  function box(cls, title, data){
+    return `<div class="traz-box ${cls}">
+      <div class="traz-box-title">${title}</div>
+      ${data.map(([lbl,val,cls])=>`<div class="traz-row"><span class="lbl">${lbl}</span><span class="val ${cls||''}">${val}</span></div>`).join('')}
+    </div>`;
+  }
+  sum.innerHTML =
+    box('t-pre','📋 PRE', [
+      ['Filas totales', a.pre.totalFilas],
+      ['Inválidos', a.pre.invalid.length, a.pre.invalid.length?'warn':'ok'],
+      ['Duplicados', a.pre.dups.length, a.pre.dups.length?'warn':'ok'],
+      ['Válidos únicos', a.pre.valid, 'ok']
+    ]) +
+    box('t-post','📋 POSTERIOR', [
+      ['Filas totales', a.post.totalFilas],
+      ['Inválidos', a.post.invalid.length, a.post.invalid.length?'warn':'ok'],
+      ['Duplicados', a.post.dups.length, a.post.dups.length?'warn':'ok'],
+      ['Válidos únicos', a.post.valid, 'ok']
+    ]) +
+    box('t-mes','📋 1 MES', [
+      ['Filas totales', a.mes.totalFilas],
+      ['Inválidos', a.mes.invalid.length, a.mes.invalid.length?'warn':'ok'],
+      ['Duplicados', a.mes.dups.length, a.mes.dups.length?'warn':'ok'],
+      ['Válidos únicos', a.mes.valid, 'ok']
+    ]);
+
+  const inter=document.getElementById('interSummary');
+  inter.innerHTML =
+    `<div class="inter-row"><span class="lbl">PRE ∩ POSTERIOR</span><span class="val">${a.interPP.length}</span></div>` +
+    `<div class="inter-row"><span class="lbl">PRE ∩ POSTERIOR ∩ 1 MES</span><span class="val">${a.interAll.length}</span></div>` +
+    `<div class="inter-row"><span class="lbl">Solo en PRE (sin POST ni MES)</span><span class="val">${a.soloPre.length}</span></div>` +
+    `<div class="inter-row"><span class="lbl">Solo en POSTERIOR (sin PRE ni MES)</span><span class="val">${a.soloPost.length}</span></div>` +
+    `<div class="inter-row"><span class="lbl">Solo en 1 MES (sin PRE ni POST)</span><span class="val">${a.soloMes.length}</span></div>`;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// RUN
+// ────────────────────────────────────────────────────────────────────────────
+btnRun.addEventListener('click', async ()=>{
+  if(!filePreData || !filePostData || !fileMesData){
+    document.getElementById('alertFiles').classList.add('visible');
+    return;
+  }
+  document.getElementById('alertFiles').classList.remove('visible');
+  btnRun.disabled=true;
+  progressLog.innerHTML=''; progressBar.style.width='0%';
+  resultsEl.classList.remove('visible');
+
+  try{
+    log('📂 Leyendo PRE...', 10);
+    const rawPre = parseXlsx(filePreData);
+    log(`   ${rawPre.length} filas`, 18);
+
+    log('📂 Leyendo POSTERIOR...', 22);
+    const rawPost = parseXlsx(filePostData);
+    log(`   ${rawPost.length} filas`, 28);
+
+    log('📂 Leyendo 1 MES...', 30);
+    const rawMes = parseXlsx(fileMesData);
+    log(`   ${rawMes.length} filas`, 33);
+
+    analysis = processAll(rawPre, rawPost, rawMes);
+    log(`📊 Calculando medias de las 16 competencias...`, 75);
+    await new Promise(r=>setTimeout(r,60));
+
+    renderKPIs(analysis);
+    renderCompTable(analysis);
+    renderChart();
+    renderSensibles(analysis);
+    renderTalleres(analysis);
+    renderComments(analysis);
+    renderTraz(analysis);
+
+    log('📝 Generando Excel...', 88);
+    resultBlob = await buildExcel(analysis);
+    log('✅ Excel listo', 98, 'ok');
+    log('🎉 Análisis completado', 100, 'ok');
+
+    resultsEl.classList.add('visible');
+    setStep(3);
+  }catch(e){
+    log('❌ Error: '+e.message, 100, 'err');
+    console.error(e);
+  }finally{
+    btnRun.disabled=false;
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// BUILD EXCEL
+// ────────────────────────────────────────────────────────────────────────────
+async function buildExcel(a){
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Analizador Integra-Te 2026';
+  wb.created = new Date();
+
+  const HDR_TEAL = '01696F', WHITE = 'FFFFFF';
+  const PRE_HEX = '479589', POST_HEX = 'B0162D', MES_HEX = 'F6B221';
+  const hdrFill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF'+HDR_TEAL} };
+  const hdrFont = { bold:true, color:{argb:'FF'+WHITE}, size:10, name:'Inter' };
+  const ctrAlign = { horizontal:'center', vertical:'middle' };
+  const leftAlign = { horizontal:'left', vertical:'middle', indent:1 };
+  const thin = (c='CCCCCC')=>({ style:'thin', color:{argb:'FF'+c} });
+  const brd = ()=>{ const t=thin(); return {top:t,left:t,bottom:t,right:t}; };
+  const fill = hex => ({ type:'pattern', pattern:'solid', fgColor:{argb:'FF'+hex} });
+
+  // ── Hoja 1: Resumen ejecutivo ────────────────────────────────────────
+  const wsR = wb.addWorksheet('Resumen', { tabColor:{argb:'FF'+HDR_TEAL} });
+  wsR.getRow(1).height = 28;
+  wsR.mergeCells('A1:D1');
+  const tit = wsR.getCell('A1');
+  tit.value = `Análisis Integra-Te · generado ${new Date().toLocaleString('es-ES')}`;
+  tit.font = { bold:true, size:13, color:{argb:'FF'+HDR_TEAL}, name:'Inter' };
+  tit.alignment = leftAlign;
+
+  let r = 3;
+  function writeRow(row, cells, opts={}){
+    cells.forEach((v,i)=>{
+      const c = wsR.getCell(row, i+1);
+      c.value = v;
+      c.border = brd();
+      c.alignment = i===0 ? leftAlign : ctrAlign;
+      if(opts.header){ c.fill=hdrFill; c.font=hdrFont; }
+      else if(opts.bold){ c.font={bold:true, name:'Inter'}; }
+      else { c.font={name:'Inter'}; }
+      if(opts.fill && i>0) c.fill = fill(opts.fill);
+    });
+  }
+  writeRow(r++, ['Indicador', 'Valor', 'Detalle', 'Fuente'], { header:true });
+
+  const k = a.kpis;
+  writeRow(r++, ['Cobertura PRE+POST', a.interPP.length, `de ${a.pre.valid} válidos PRE`, 'Cruce']);
+  writeRow(r++, ['Cobertura 3 momentos', a.interAll.length, `de ${a.mes.valid} válidos 1MES`, 'Cruce']);
+  if(k.satPost) writeRow(r++, ['Satisfacción (POST)', `${k.satPost.pct.toFixed(2)}%`, `media ${k.satPost.mean.toFixed(2)}/5 · n=${k.satPost.n}`, 'POSTERIOR'], { fill: 'fae5e9' });
+  if(k.satMes)  writeRow(r++, ['Satisfacción (1 MES)', `${k.satMes.pct.toFixed(2)}%`, `media ${k.satMes.mean.toFixed(2)}/5 · n=${k.satMes.n}`, '1 MES'], { fill: 'fdf3dc' });
+  if(k.recPost) writeRow(r++, ['Recomendación (POST)', `${k.recPost.pct.toFixed(2)}%`, `media ${k.recPost.mean.toFixed(2)}/10 · n=${k.recPost.n}`, 'POSTERIOR'], { fill: 'fae5e9' });
+  if(k.recMes)  writeRow(r++, ['Recomendación (1 MES)', `${k.recMes.pct.toFixed(2)}%`, `media ${k.recMes.mean.toFixed(2)}/10 · n=${k.recMes.n}`, '1 MES'], { fill: 'fdf3dc' });
+  if(k.empleabilidad && k.empleabilidad.pct!==null) writeRow(r++, ['Mejoró empleabilidad', `${k.empleabilidad.pct.toFixed(2)}%`, `${k.empleabilidad.yes}/${k.empleabilidad.total} (Mucho+Bastante)`, '1 MES'], { fill: 'fdf3dc' });
+  if(k.trabajo && k.trabajo.pct!==null) writeRow(r++, ['Encontró trabajo', `${k.trabajo.pct.toFixed(2)}%`, `${k.trabajo.yes}/${k.trabajo.total} dijo "Sí"`, '1 MES'], { fill: 'fdf3dc' });
+
+  wsR.getColumn(1).width = 28;
+  wsR.getColumn(2).width = 14;
+  wsR.getColumn(3).width = 36;
+  wsR.getColumn(4).width = 14;
+
+  // ── Hoja 2: Competencias ─────────────────────────────────────────────
+  const wsC = wb.addWorksheet('Competencias', { tabColor:{argb:'FF'+PRE_HEX} });
+  wsC.getRow(1).height = 22;
+  ['Competencia','Previa (%)','Posterior (%)','1 mes (%)','Δ Pre→Post (pp)','Δ Post→Mes (pp)'].forEach((h,i)=>{
+    const c=wsC.getCell(1,i+1); c.value=h; c.fill=hdrFill; c.font=hdrFont; c.alignment=ctrAlign; c.border=brd();
+  });
+  a.competencias.forEach((co, idx)=>{
+    const row=idx+2;
+    const cells = [
+      co.long,
+      co.prePct ===null ? '' : co.prePct,
+      co.postPct===null ? '' : co.postPct,
+      co.mesPct ===null ? '' : co.mesPct,
+      co.deltaPP===null ? '' : co.deltaPP,
+      co.deltaPM===null ? '' : co.deltaPM
+    ];
+    cells.forEach((v,i)=>{
+      const c=wsC.getCell(row,i+1);
+      c.value = v;
+      c.border = brd();
+      c.alignment = i===0?leftAlign:ctrAlign;
+      c.font = { name:'Inter', size:10 };
+      if(i===1) c.fill = fill('e8f2f0');
+      if(i===2) c.fill = fill('fae5e9');
+      if(i===3) c.fill = fill('fdf3dc');
+      if(typeof v==='number') c.numFmt = i<=3 ? '0.00' : '+0.00;-0.00;0.00';
+      if(i===0) c.font = { bold:true, name:'Inter', size:10 };
+    });
+  });
+  // Pie con nota
+  const noteRow = a.competencias.length+3;
+  wsC.mergeCells(noteRow, 1, noteRow, 6);
+  wsC.getCell(noteRow,1).value = `Previa y Posterior calculadas sobre ${a.interPP.length} candidatos (PRE∩POST). 1 mes sobre ${a.interAll.length} (intersección de los 3).`;
+  wsC.getCell(noteRow,1).font = { italic:true, color:{argb:'FF999999'}, size:9, name:'Inter' };
+  wsC.getCell(noteRow,1).alignment = leftAlign;
+
+  wsC.getColumn(1).width = 48;
+  for(let i=2;i<=6;i++) wsC.getColumn(i).width = 16;
+
+  // Sensibles (si existen)
+  if(a.sensibles.length){
+    const wsS = wb.addWorksheet('Sensibles', { tabColor:{argb:'FFE65100'} });
+    wsS.getRow(1).height = 28;
+    wsS.mergeCells('A1:F1');
+    const t = wsS.getCell('A1');
+    t.value = 'Competencias sensibles — interpretación cualitativa requerida';
+    t.font = { bold:true, size:13, color:{argb:'FFE65100'}, name:'Inter' };
+    t.alignment = leftAlign;
+    wsS.mergeCells('A2:F2');
+    wsS.getCell('A2').value = 'La caída a 1 mes no necesariamente significa olvido — puede reflejar falta de oportunidad real de aplicar la competencia. Revisar caso a caso.';
+    wsS.getCell('A2').font = { italic:true, size:10, name:'Inter', color:{argb:'FF8a4416'} };
+    wsS.getCell('A2').alignment = leftAlign;
+
+    ['Competencia','Previa (%)','Posterior (%)','1 mes (%)','Δ Pre→Post','Δ Post→Mes'].forEach((h,i)=>{
+      const c=wsS.getCell(4,i+1); c.value=h; c.fill=hdrFill; c.font=hdrFont; c.alignment=ctrAlign; c.border=brd();
+    });
+    a.sensibles.forEach((co, idx)=>{
+      const row=idx+5;
+      [co.long, co.prePct, co.postPct, co.mesPct, co.deltaPP, co.deltaPM].forEach((v,i)=>{
+        const c=wsS.getCell(row,i+1);
+        c.value = v;
+        c.border = brd();
+        c.alignment = i===0?leftAlign:ctrAlign;
+        c.font = { name:'Inter', size:10 };
+        if(typeof v==='number') c.numFmt = i<=3 ? '0.00' : '+0.00;-0.00;0.00';
+        if(i===0) c.font = { bold:true, name:'Inter', size:10 };
+      });
+    });
+    wsS.getColumn(1).width = 48;
+    for(let i=2;i<=6;i++) wsS.getColumn(i).width = 16;
+  }
+
+  // ── Hoja: Datos cruzados (los 3 momentos lado a lado) ────────────────
+  const wsX = wb.addWorksheet('Datos cruzados', { tabColor:{argb:'FF'+HDR_TEAL} });
+  // Header: Tel | Nombre | <16 PRE> | <16 POST> | <16 MES>
+  const headerCells = ['Teléfono','Nombre',
+    ...COMPETENCIAS.map(c=>'PRE · '+c.short),
+    ...COMPETENCIAS.map(c=>'POST · '+c.short),
+    ...COMPETENCIAS.map(c=>'MES · '+c.short)];
+  wsX.getRow(1).height = 22;
+  headerCells.forEach((h,i)=>{
+    const c=wsX.getCell(1,i+1);
+    c.value=h; c.font=hdrFont; c.alignment=ctrAlign; c.border=brd();
+    if(i<2) c.fill = hdrFill;
+    else if(i<2+16) c.fill = fill(PRE_HEX);
+    else if(i<2+32) c.fill = fill(POST_HEX);
+    else c.fill = fill(MES_HEX);
+  });
+  a.interPP.forEach((tel, idx)=>{
+    const row = idx+2;
+    const ePre = a.pre.map.get(tel);
+    const ePos = a.post.map.get(tel);
+    const eMes = a.mes.map.get(tel); // puede ser undefined
+    wsX.getCell(row,1).value = tel;
+    wsX.getCell(row,2).value = ePre?.nombre || ePos?.nombre || '';
+    COMPETENCIAS.forEach((c,i)=>{
+      const v1 = ePre?.valores[c.id]; wsX.getCell(row, 3+i).value = v1===null||v1===undefined?'':v1;
+      const v2 = ePos?.valores[c.id]; wsX.getCell(row, 19+i).value = v2===null||v2===undefined?'':v2;
+      const v3 = eMes?.valores[c.id]; wsX.getCell(row, 35+i).value = v3===null||v3===undefined?'':v3;
+    });
+    for(let i=1;i<=50;i++){
+      const c=wsX.getCell(row,i);
+      c.border=brd();
+      c.alignment=i<=2?leftAlign:ctrAlign;
+      c.font = { name:'Inter', size:9 };
+      if(typeof c.value==='number' && i>2) c.numFmt='0';
+    }
+  });
+  wsX.getColumn(1).width=12;
+  wsX.getColumn(2).width=24;
+  for(let i=3;i<=50;i++) wsX.getColumn(i).width=8;
+
+  // ── Hoja: Talleres ───────────────────────────────────────────────────
+  const wsT = wb.addWorksheet('Talleres', { tabColor:{argb:'FF'+POST_HEX} });
+  function writeTallerBlock(ws, startRow, title, t){
+    ws.mergeCells(startRow, 1, startRow, 3);
+    const c = ws.getCell(startRow,1);
+    c.value = title;
+    c.font = { bold:true, size:12, color:{argb:'FF'+POST_HEX}, name:'Inter' };
+    c.alignment = leftAlign;
+    ws.getRow(startRow).height = 22;
+    ['Taller','Respuestas','%'].forEach((h,i)=>{
+      const cc=ws.getCell(startRow+1, i+1); cc.value=h; cc.fill=hdrFill; cc.font=hdrFont; cc.alignment=ctrAlign; cc.border=brd();
+    });
+    if(!t.total){
+      ws.mergeCells(startRow+2,1,startRow+2,3);
+      ws.getCell(startRow+2,1).value='Sin datos';
+      ws.getCell(startRow+2,1).font={italic:true,color:{argb:'FF999999'},name:'Inter'};
+      return startRow+4;
+    }
+    t.ordered.forEach(([nombre, count], i)=>{
+      const row = startRow+2+i;
+      ws.getCell(row,1).value = nombre;
+      ws.getCell(row,2).value = count;
+      ws.getCell(row,3).value = count/t.total;
+      ws.getCell(row,3).numFmt = '0.0%';
+      [1,2,3].forEach(col=>{
+        const cell=ws.getCell(row,col);
+        cell.border=brd();
+        cell.alignment=col===1?leftAlign:ctrAlign;
+        cell.font={name:'Inter',size:10};
+      });
+    });
+    return startRow + 2 + t.ordered.length + 2;
+  }
+  let row = 1;
+  row = writeTallerBlock(wsT, row, '🏆 Taller que más ha gustado', a.talleres.mas);
+  row = writeTallerBlock(wsT, row, '📉 Taller que menos ha gustado', a.talleres.menos);
+  wsT.getColumn(1).width = 56;
+  wsT.getColumn(2).width = 14;
+  wsT.getColumn(3).width = 10;
+
+  // ── Hoja: COMENTARIOS (estructurada para LLM) ─────────────────────────
+  const wsCom = wb.addWorksheet('Comentarios', { tabColor:{argb:'FF6A1B9A'} });
+  wsCom.getRow(1).height = 28;
+  wsCom.mergeCells('A1:D1');
+  const ct = wsCom.getCell('A1');
+  ct.value = 'Comentarios cualitativos — listos para copiar y agrupar con un LLM';
+  ct.font = { bold:true, size:13, color:{argb:'FF6A1B9A'}, name:'Inter' };
+  ct.alignment = leftAlign;
+  wsCom.mergeCells('A2:D2');
+  wsCom.getCell('A2').value = 'Copia las filas relevantes y pídele a un LLM (Copilot, Claude, etc.) que agrupe por temas comunes, calcule % por candidato, y extraiga citas literales por grupo.';
+  wsCom.getCell('A2').font = { italic:true, size:10, color:{argb:'FF888888'}, name:'Inter' };
+  wsCom.getCell('A2').alignment = leftAlign;
+
+  let cRow = 4;
+  ['Origen','Pregunta','Candidato','Comentario'].forEach((h,i)=>{
+    const c=wsCom.getCell(cRow,i+1); c.value=h; c.fill=hdrFill; c.font=hdrFont; c.alignment=ctrAlign; c.border=brd();
+  });
+  cRow++;
+  const allComm = [
+    ...a.comentarios.pre,
+    ...a.comentarios.post,
+    ...a.comentarios.mes
+  ];
+  for(const g of allComm){
+    for(const it of g.items){
+      const oColor = g.origen==='pre'?PRE_HEX:g.origen==='post'?POST_HEX:MES_HEX;
+      const labels = { pre:'PRE', post:'POST', mes:'1 MES' };
+      wsCom.getCell(cRow,1).value = labels[g.origen];
+      wsCom.getCell(cRow,2).value = g.etiqueta;
+      wsCom.getCell(cRow,3).value = it.nombre || '(sin nombre)';
+      wsCom.getCell(cRow,4).value = it.texto;
+      [1,2,3,4].forEach(col=>{
+        const cell=wsCom.getCell(cRow,col);
+        cell.border=brd();
+        cell.alignment={vertical:'top',wrapText:true,horizontal:col===1||col===2?'left':'left',indent:1};
+        cell.font={name:'Inter',size:10};
+      });
+      wsCom.getCell(cRow,1).fill = fill(oColor);
+      wsCom.getCell(cRow,1).font = { bold:true, color:{argb:'FF'+WHITE}, size:9, name:'Inter' };
+      wsCom.getCell(cRow,1).alignment = { vertical:'middle', horizontal:'center' };
+      cRow++;
+    }
+  }
+  wsCom.getColumn(1).width = 10;
+  wsCom.getColumn(2).width = 36;
+  wsCom.getColumn(3).width = 26;
+  wsCom.getColumn(4).width = 80;
+  // Freeze first 4 rows so headers stay visible
+  wsCom.views = [{ state:'frozen', ySplit: 4 }];
+
+  // ── Hoja: Trazabilidad ───────────────────────────────────────────────
+  const wsTr = wb.addWorksheet('Trazabilidad', { tabColor:{argb:'FFFF6F00'} });
+  wsTr.getRow(1).height = 28;
+  wsTr.mergeCells('A1:D1');
+  const trT = wsTr.getCell('A1');
+  trT.value = `Trazabilidad — generado ${new Date().toLocaleString('es-ES')}`;
+  trT.font = { bold:true, size:13, color:{argb:'FF'+HDR_TEAL}, name:'Inter' };
+  trT.alignment = leftAlign;
+
+  let trRow = 3;
+  ['','PRE','POSTERIOR','1 MES'].forEach((h,i)=>{
+    const c=wsTr.getCell(trRow,i+1); c.value=h; c.fill=hdrFill; c.font=hdrFont; c.alignment=ctrAlign; c.border=brd();
+  });
+  trRow++;
+  const trazRows = [
+    ['Filas totales', a.pre.totalFilas, a.post.totalFilas, a.mes.totalFilas],
+    ['Inválidos', a.pre.invalid.length, a.post.invalid.length, a.mes.invalid.length],
+    ['Duplicados', a.pre.dups.length, a.post.dups.length, a.mes.dups.length],
+    ['Válidos únicos', a.pre.valid, a.post.valid, a.mes.valid],
+    ['', '', '', ''],
+    ['PRE ∩ POSTERIOR', a.interPP.length, '', ''],
+    ['PRE ∩ POSTERIOR ∩ 1 MES', a.interAll.length, '', ''],
+    ['Solo en PRE', a.soloPre.length, '', ''],
+    ['Solo en POSTERIOR', '', a.soloPost.length, ''],
+    ['Solo en 1 MES', '', '', a.soloMes.length]
+  ];
+  trazRows.forEach(r2=>{
+    r2.forEach((v,i)=>{
+      const c=wsTr.getCell(trRow,i+1);
+      c.value = v;
+      c.border = brd();
+      c.alignment = i===0?leftAlign:ctrAlign;
+      c.font = { name:'Inter', size:10 };
+      if(i===0) c.font = { bold:true, name:'Inter', size:10 };
+      if(i===1 && v!=='') c.fill = fill('e8f2f0');
+      if(i===2 && v!=='') c.fill = fill('fae5e9');
+      if(i===3 && v!=='') c.fill = fill('fdf3dc');
+    });
+    trRow++;
+  });
+
+  trRow += 2;
+  // Inválidos detallados
+  function writeInvalidSection(ws, startRow, title, color, invalids){
+    ws.mergeCells(startRow, 1, startRow, 3);
+    const c = ws.getCell(startRow,1);
+    c.value = title;
+    c.fill = fill(color);
+    c.font = { bold:true, size:11, name:'Inter' };
+    c.alignment = leftAlign;
+    ws.getRow(startRow).height = 22;
+    ['#','Valor original','Motivo'].forEach((h,i)=>{
+      const cc=ws.getCell(startRow+1,i+1); cc.value=h; cc.fill=hdrFill; cc.font=hdrFont; cc.alignment=ctrAlign; cc.border=brd();
+    });
+    if(!invalids.length){
+      ws.mergeCells(startRow+2,1,startRow+2,3);
+      ws.getCell(startRow+2,1).value = 'Sin registros';
+      ws.getCell(startRow+2,1).font = { italic:true, color:{argb:'FF999999'}, name:'Inter' };
+      return startRow+4;
+    }
+    invalids.forEach((inv, i)=>{
+      const row = startRow+2+i;
+      ws.getCell(row,1).value = i+1;
+      ws.getCell(row,2).value = String(inv.orig ?? '(vacío)');
+      ws.getCell(row,3).value = inv.err;
+      [1,2,3].forEach(col=>{
+        const cell=ws.getCell(row,col);
+        cell.border=brd();
+        cell.alignment=col===1?ctrAlign:leftAlign;
+        cell.font={name:'Inter',size:10};
+      });
+    });
+    return startRow + 2 + invalids.length + 2;
+  }
+  trRow = writeInvalidSection(wsTr, trRow, 'PRE · Inválidos', PRE_HEX, a.pre.invalid);
+  trRow = writeInvalidSection(wsTr, trRow, 'POSTERIOR · Inválidos', POST_HEX, a.post.invalid);
+  trRow = writeInvalidSection(wsTr, trRow, '1 MES · Inválidos', MES_HEX, a.mes.invalid);
+
+  wsTr.getColumn(1).width = 28;
+  wsTr.getColumn(2).width = 30;
+  wsTr.getColumn(3).width = 45;
+  wsTr.getColumn(4).width = 12;
+
+  const buf = await wb.xlsx.writeBuffer();
+  return new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// DOWNLOAD
+// ────────────────────────────────────────────────────────────────────────────
+btnDownload.addEventListener('click', ()=>{
+  if(!resultBlob) return;
+  const d = new Date();
+  const fname = `Analisis-IntegraTe-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(resultBlob);
+  a.download = fname;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>

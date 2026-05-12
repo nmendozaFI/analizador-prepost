@@ -7,7 +7,10 @@ Herramienta de análisis de encuestas PRE y POST que cruza datos por teléfono, 
 ```
 analizador-prepost/
 ├── public/
-│   └── index.html      ← La app completa
+│   └── index.html      ← La navegacion
+│   └── ef.html 
+│   └── it.html 
+│   └── seguimiento.html 
 ├── package.json
 ├── vercel.json          ← Config de deploy
 ├── .gitignore
