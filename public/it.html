@@ -250,6 +250,13 @@ img{display:block;max-width:100%}
 /* alerts */
 .alert{display:none;align-items:center;gap:var(--space-3);background:var(--color-warning-bg);border:1px solid var(--color-warning);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-5);font-size:var(--text-xs);font-weight:600;color:var(--color-warning)}
 .alert.visible{display:flex}
+/* ── MODO TOGGLE ─────────────────────────────────────── */
+.mode-toggle-wrap{display:flex;align-items:center;gap:var(--space-2);background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:3px}
+.mode-btn{font-size:var(--text-xs);font-weight:700;padding:var(--space-2) var(--space-4);border-radius:var(--radius-xl);color:var(--color-text-muted);white-space:nowrap;transition:background var(--transition),color var(--transition)}
+.mode-btn.active{background:var(--color-primary);color:#fff;box-shadow:var(--shadow-sm)}
+.mode-btn:hover:not(.active){color:var(--color-text)}
+.upload-card.optional-hidden{opacity:.4;pointer-events:none;filter:grayscale(1)}
+.badge-opcional{display:inline-block;font-size:.55rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:var(--radius-xl);background:var(--color-surface-offset);color:var(--color-text-muted);margin-left:var(--space-2);vertical-align:middle}
 </style>
 </head>
 <body>
@@ -290,12 +297,16 @@ img{display:block;max-width:100%}
       </div>
       <div class="intro-text">
         <h2>Análisis del programa Integra-Te</h2>
-        <p>Sube las tres encuestas del programa: <strong style="color:var(--color-pre-corp)">PRE</strong> (antes de la formación), <strong style="color:var(--color-post-corp)">Posterior</strong> (justo después) y <strong style="color:#8a6310">1 mes después</strong> (seguimiento). La herramienta cruza por teléfono, calcula evolución de competencias, indicadores de satisfacción y empleabilidad, y exporta un Excel completo con todos los comentarios listos para copiar y pegar.</p>
+        <p id="introText">Sube las encuestas del programa: <strong style="color:var(--color-pre-corp)">PRE</strong> (antes de la formación) y <strong style="color:var(--color-post-corp)">Posterior</strong> (justo después). La herramienta cruza por teléfono, calcula evolución de competencias, indicadores de satisfacción y exporta un Excel completo.</p>
+      </div>
+      <div class="mode-toggle-wrap" title="Modo de análisis">
+        <button class="mode-btn active" id="modeBtn3" onclick="setMode(3)">Modo 3</button>
+        <button class="mode-btn" id="modeBtn2" onclick="setMode(2)">Modo 2</button>
       </div>
     </div>
 
     <div class="steps-header">
-      <div class="step-chip active" id="step1chip"><div class="num">1</div> Subir las 3 encuestas</div>
+      <div class="step-chip active" id="step1chip"><div class="num">1</div> <span id="step1label">Subir las encuestas</span></div>
       <div class="step-sep"></div>
       <div class="step-chip" id="step2chip"><div class="num">2</div> Procesar</div>
       <div class="step-sep"></div>
@@ -326,6 +337,7 @@ img{display:block;max-width:100%}
       <div class="upload-card" id="dropMes" data-momento="mes">
         <input type="file" accept=".xlsx" id="fileMes" aria-label="Encuesta 1 mes">
         <div class="badge-momento badge-mes">1 mes después</div>
+        <span class="badge-opcional" id="badgeOpcional">Opcional</span>
         <div class="upload-icon" id="iconMes">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
@@ -343,7 +355,7 @@ img{display:block;max-width:100%}
     <div class="run-section">
       <button class="btn-run" id="btnRun" disabled>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Analizar las 3 encuestas
+        Analizar las encuestas
       </button>
     </div>
 
@@ -475,7 +487,7 @@ img{display:block;max-width:100%}
 // ────────────────────────────────────────────────────────────────────────────
 let filePreData=null,filePostData=null,fileMesData=null;
 let resultBlob=null, analysis=null, compChartInstance=null;
-
+let currentMode = 3; // 2 = PRE+POST, 3 = PRE+POST+MES
 // ────────────────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ────────────────────────────────────────────────────────────────────────────
@@ -540,9 +552,13 @@ function setupUpload(dropId, inputId, nameId, iconId, cb){
 setupUpload('dropPre','filePre','fileNamePre','iconPre', d=>filePreData=d);
 setupUpload('dropPost','filePost','fileNamePost','iconPost', d=>filePostData=d);
 setupUpload('dropMes','fileMes','fileNameMes','iconMes', d=>fileMesData=d);
+// Inicializar modo por defecto (3 encuestas)
+setMode(3);
 
 function checkReady(){
-  const ready = filePreData && filePostData && fileMesData;
+ const ready = currentMode === 2
+    ? (filePreData && filePostData)
+    : (filePreData && filePostData && fileMesData);
   btnRun.disabled = !ready;
   if(ready) setStep(2);
 }
@@ -553,6 +569,33 @@ function setStep(n){
     if(i+1<n) el.classList.add('done');
     else if(i+1===n) el.classList.add('active');
   });
+}
+
+function setMode(n){
+  currentMode = n;
+  // botones
+  document.getElementById('modeBtn2').classList.toggle('active', n===2);
+  document.getElementById('modeBtn3').classList.toggle('active', n===3);
+  // tarjeta MES
+  const dropMes = document.getElementById('dropMes');
+  const badge = document.getElementById('badgeOpcional');
+  if(n===2){
+    dropMes.classList.add('optional-hidden');
+    badge.style.display='inline-block';
+  } else {
+    dropMes.classList.remove('optional-hidden');
+    badge.style.display='none';
+  }
+  // textos dinámicos
+  document.getElementById('step1label').textContent = n===2 ? 'Subir las 2 encuestas' : 'Subir las 3 encuestas';
+  document.getElementById('btnRunLabel').textContent = n===2 ? 'Analizar las 2 encuestas' : 'Analizar las 3 encuestas';
+  document.getElementById('alertText').textContent = n===2
+    ? 'Sube las encuestas PRE y Posterior antes de procesar.'
+    : 'Sube las tres encuestas antes de procesar.';
+  document.getElementById('introText').innerHTML = n===2
+    ? 'Sube las encuestas del programa: <strong style="color:var(--color-pre-corp)">PRE</strong> (antes de la formación) y <strong style="color:var(--color-post-corp)">Posterior</strong> (justo después). La herramienta cruza por teléfono, calcula evolución de competencias e indicadores de satisfacción.'
+    : 'Sube las tres encuestas del programa: <strong style="color:var(--color-pre-corp)">PRE</strong> (antes de la formación), <strong style="color:var(--color-post-corp)">Posterior</strong> (justo después) y <strong style="color:#8a6310">1 mes después</strong> (seguimiento). La herramienta cruza por teléfono, calcula evolución de competencias, indicadores de satisfacción y empleabilidad.';
+  checkReady();
 }
 
 function log(msg, pct, cls=''){
@@ -684,9 +727,16 @@ function processAll(rawPre, rawPost, rawMes){
   const post = processSheet(rawPost, 'post');
   log(`   ${post.valid} válidos, ${post.invalid.length} inválidos, ${post.dups.length} dups`, 50);
 
-  log('🧹 Procesando 1 MES...', 55);
-  const mes  = processSheet(rawMes, 'mes');
-  log(`   ${mes.valid} válidos, ${mes.invalid.length} inválidos, ${mes.dups.length} dups`, 60);
+  let mes;
+  if(rawMes){
+    log('🧹 Procesando 1 MES...', 55);
+    mes = processSheet(rawMes, 'mes');
+    log(`   ${mes.valid} válidos, ${mes.invalid.length} inválidos, ${mes.dups.length} dups`, 60);
+  } else {
+    // Stub vacío para modo 2 encuestas
+    mes = { map: new Map(), valid: 0, invalid: [], dups: [], rawRows: [], totalFilas: 0 };
+    log('ℹ️ Sin 1 MES · análisis de 2 momentos', 60);
+  }
 
   // Conjuntos
   const setPre  = new Set(pre.map.keys());
@@ -713,15 +763,14 @@ function processAll(rawPre, rawPost, rawMes){
     return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
   }
 
+  const hasMes = mes.map.size > 0;
   const competencias = COMPETENCIAS.map(c=>{
-    const prePct  = avgFor(pre.map,  interPP,  c.id);  // base PRE∩POST
-    const postPct = avgFor(post.map, interPP,  c.id);  // base PRE∩POST
-    const mesPct  = avgFor(mes.map,  interAll, c.id);  // base 3-way
+    const prePct  = avgFor(pre.map,  interPP,  c.id);
+    const postPct = avgFor(post.map, interPP,  c.id);
+    const mesPct  = hasMes ? avgFor(mes.map, interAll, c.id) : null;
 
-    // Δ Pre→Post: sobre interPP (más datos)
     const deltaPP = (prePct!==null && postPct!==null) ? (postPct - prePct) : null;
-    // Δ Post→Mes: sobre interAll (recalculamos para que sean comparables)
-    const postPctAll = avgFor(post.map, interAll, c.id);
+    const postPctAll = hasMes ? avgFor(post.map, interAll, c.id) : null;
     const deltaPM = (postPctAll!==null && mesPct!==null) ? (mesPct - postPctAll) : null;
 
     return { ...c, prePct, postPct, mesPct, postPctAll, deltaPP, deltaPM };
@@ -826,7 +875,7 @@ function processAll(rawPre, rawPost, rawMes){
   ]);
 
   return {
-    pre, post, mes,
+    pre, post, mes,hasMes,
     interPP, interAll, soloPre, soloPost, soloMes,
     competencias, sensibles,
     kpis: { satPost, recPost, satMes, recMes, empleabilidad, trabajo },
@@ -945,9 +994,9 @@ function renderKPIs(a){
 // ────────────────────────────────────────────────────────────────────────────
 function renderCompTable(a){
   const tbody=document.querySelector('#compTable tbody');
-  document.getElementById('compTableSub').textContent =
-    `Previa y Posterior calculadas sobre ${a.interPP.length} candidatos (PRE∩POST) · 1 mes calculado sobre ${a.interAll.length} (PRE∩POST∩1MES)`;
-
+    document.getElementById('compTableSub').textContent = a.hasMes
+    ? `Previa y Posterior calculadas sobre ${a.interPP.length} candidatos (PRE∩POST) · 1 mes calculado sobre ${a.interAll.length} (PRE∩POST∩1MES)`
+    : `Previa y Posterior calculadas sobre ${a.interPP.length} candidatos (PRE∩POST) · Sin datos de 1 mes`;
   tbody.innerHTML = a.competencias.map(c=>{
     const dPP = c.deltaPP;
     const dPM = c.deltaPM;
@@ -979,10 +1028,10 @@ function renderChart(){
     data:{
       labels,
       datasets:[
-        { label:'Previa',    data: a.competencias.map(c=>c.prePct),     backgroundColor: COLOR_PRE,  borderRadius:3, borderSkipped:false },
-        { label:'Posterior', data: a.competencias.map(c=>c.postPct),    backgroundColor: COLOR_POST, borderRadius:3, borderSkipped:false },
-        { label:'1 mes',     data: a.competencias.map(c=>c.mesPct),     backgroundColor: COLOR_MES,  borderRadius:3, borderSkipped:false }
-      ]
+        { label:'Previa',    data: a.competencias.map(c=>c.prePct),  backgroundColor: COLOR_PRE,  borderRadius:3, borderSkipped:false },
+        { label:'Posterior', data: a.competencias.map(c=>c.postPct), backgroundColor: COLOR_POST, borderRadius:3, borderSkipped:false },
+        ...(a.hasMes ? [{ label:'1 mes', data: a.competencias.map(c=>c.mesPct), backgroundColor: COLOR_MES, borderRadius:3, borderSkipped:false }] : [])
+],
     },
     options:{
       responsive:true, maintainAspectRatio:false,
@@ -1128,12 +1177,12 @@ function renderTraz(a){
       ['Duplicados', a.post.dups.length, a.post.dups.length?'warn':'ok'],
       ['Válidos únicos', a.post.valid, 'ok']
     ]) +
-    box('t-mes','📋 1 MES', [
+    (a.hasMes ? box('t-mes','📋 1 MES', [
       ['Filas totales', a.mes.totalFilas],
       ['Inválidos', a.mes.invalid.length, a.mes.invalid.length?'warn':'ok'],
       ['Duplicados', a.mes.dups.length, a.mes.dups.length?'warn':'ok'],
       ['Válidos únicos', a.mes.valid, 'ok']
-    ]);
+    ]) : '');
 
   const inter=document.getElementById('interSummary');
   inter.innerHTML =
@@ -1148,7 +1197,10 @@ function renderTraz(a){
 // RUN
 // ────────────────────────────────────────────────────────────────────────────
 btnRun.addEventListener('click', async ()=>{
-  if(!filePreData || !filePostData || !fileMesData){
+  const missingFiles = currentMode === 2
+    ? (!filePreData || !filePostData)
+    : (!filePreData || !filePostData || !fileMesData);
+  if(missingFiles){
     document.getElementById('alertFiles').classList.add('visible');
     return;
   }
@@ -1166,9 +1218,14 @@ btnRun.addEventListener('click', async ()=>{
     const rawPost = parseXlsx(filePostData);
     log(`   ${rawPost.length} filas`, 28);
 
-    log('📂 Leyendo 1 MES...', 30);
-    const rawMes = parseXlsx(fileMesData);
-    log(`   ${rawMes.length} filas`, 33);
+    let rawMes = null;
+    if(currentMode === 3 && fileMesData){
+      log('📂 Leyendo 1 MES...', 30);
+      rawMes = parseXlsx(fileMesData);
+      log(`   ${rawMes.length} filas`, 33);
+    } else {
+      log('ℹ️ Modo 2 encuestas · saltando 1 MES', 33);
+    }
 
     analysis = processAll(rawPre, rawPost, rawMes);
     log(`📊 Calculando medias de las 16 competencias...`, 75);
