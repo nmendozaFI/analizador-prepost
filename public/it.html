@@ -549,11 +549,15 @@ function setupUpload(dropId, inputId, nameId, iconId, cb){
   drop.addEventListener('dragleave', ()=>drop.classList.remove('drag-over'));
   drop.addEventListener('drop', e=>{ e.preventDefault(); drop.classList.remove('drag-over'); const f=e.dataTransfer?.files[0]; if(f) handle(f); });
 }
-setupUpload('dropPre','filePre','fileNamePre','iconPre', d=>filePreData=d);
-setupUpload('dropPost','filePost','fileNamePost','iconPost', d=>filePostData=d);
-setupUpload('dropMes','fileMes','fileNameMes','iconMes', d=>fileMesData=d);
-// Inicializar modo por defecto (3 encuestas)
-setMode(3);
+setupUpload('dropPre','filePre','fileNamePre','iconPre', d => { filePreData = d });
+setupUpload('dropPost','filePost','fileNamePost','iconPost', d => { filePostData = d });
+setupUpload('dropMes','fileMes','fileNameMes','iconMes', d => { fileMesData = d });
+
+// ✅ Espera a que todo el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+  setMode(3);
+});
+
 
 function checkReady(){
  const ready = currentMode === 2
